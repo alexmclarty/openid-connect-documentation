@@ -25,6 +25,9 @@ entries:
     - title: Overview
       url: /explore_overview.html
       output: web
+    - title: Introduction to OpenID Connect
+      url: /explore_intro_to_oidc.html
+      output: web
 
   - title: Develop
     output: web

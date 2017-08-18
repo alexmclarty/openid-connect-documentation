@@ -9,7 +9,7 @@ topnav_dropdowns:
   folders:
     - title: External Links
       folderitems:        
-        - title: External Link 1
-          external_url: http://www.google.com/
+        - title: OpenID Connect Specifications
+          external_url: http://openid.net/connect/
         - title: External Link 2
           external_url: http://www.yahoo.com/        
