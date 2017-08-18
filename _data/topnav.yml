@@ -11,5 +11,11 @@ topnav_dropdowns:
       folderitems:        
         - title: OpenID Connect Specifications
           external_url: http://openid.net/connect/
-        - title: External Link 2
-          external_url: http://www.yahoo.com/        
+        - title: OAuth 2.0 Framework
+          external_url: https://tools.ietf.org/html/rfc6749
+        - title: JSON Web Token
+          external_url: https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32        
+        - title: JSON Web Signature
+          external_url: https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41        
+        - title: JSON Web Encryption
+          external_url: http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption        
