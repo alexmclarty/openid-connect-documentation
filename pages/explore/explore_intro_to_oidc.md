@@ -1,5 +1,5 @@
 ---
-title: OpenID Connect Explained
+title: An Introduction to OpenID Connect
 keywords: explore, design, reference
 tags: [design,explore]
 sidebar: overview_sidebar
@@ -60,7 +60,7 @@ Before attempting to understand the OpenID Connect authentication process it is 
   A protected Resource that, when presented with an access token by the RP returns authorized information about an End-User.
 Access Token Scope
    
-## High Level Process Description
+## High Level Process Flow
 
 The diagram below depicts at a a high level the OpenID Connect authentication process.
 
@@ -94,6 +94,10 @@ The Implicit Flow is mainly used by Relying Parties implemented as a client in a
 
 This is a rarely used flow that allows the Relying Party's client and server components to receive tokens separately from one another. Essentially it is a combination of the code and implicit flows.
 
+## Data Artefacts
+
+This section describes in more detail some of the data artefacts used in the flow above.
+
 ### ID Token
 
 The ID Token is a JSON Web Token [JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User and optionally data about the End-User.
@@ -108,7 +112,7 @@ aud|Audience(s)|The identifier of the Relying Party and any other parties intend
 exp|Expiration|The time on or after which the ID Token must not be accepted for processing.|
 iat|Issuance Time|The time at which the JWT was issued.|
 
-The ID Tokens may additionally contain other claims.
+The ID Tokens may additionally contain other claims:
 
 1. There are a number of optional standard claims that may be returned depending on the flow and the parameter provided in the initial request e.g. a relying Party may supply a nonce parameter in the original request and this will be returned unmodified in a nonce claim to allow the Relying Party to mitigate against a replay attack.
 
@@ -135,7 +139,7 @@ The JSON object is signed using a JSON Web Signature [JWS](https://tools.ietf.or
 Finally the ID token header, JSON claims and signature are encoded into a base 64 URL-safe string e.g.
 
 ```
-"id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlOWdkazcifQ.ewogImlzc
+"eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlOWdkazcifQ.ewogImlzc
 yI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5
 NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZ
 fV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5Nz
@@ -147,6 +151,33 @@ K5hoDalrcvRYLSrQAZZKflyuVCyixEoV9GfNQC3_osjzw2PAithfubEEBLuVVk4
 XUVrWOLrLl0nx7RkKU8NXNHq-rvKMzqg"
 ```
 
+### Access and Refresh Tokens
+
+Access tokens are credentials used to access protected resources. An access token represents specific scopes and durations of access, granted by the resource owner, and enforced by the resource server and authorization. OAuth 2.0 supports a number of access token types, the type used in OpenID Connect are bearer tokens which can be simply understood as meaning "give access to the bearer of this token". 
+
+Access tokens can have different formats, structures, and methods of utilization based on the resource server security requirements. However they are represented as a string the structure of which is usually opaque to the client. An example of a returned access token is given below:
+
+```
+access_token=jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y
+```
+
+Refresh tokens are credentials used to obtain access tokens.  Refresh tokens are issued to the client by the authorization server and are  used to obtain a new access token when the current one becomes invalid or expires, or to obtain additional access tokens with identical or narrower scope. Unlike access tokens, refresh tokens are intended for use only with authorization servers and are never sent to resource servers. As for access tokens a refresh token is represented as a string that is usually opaque to the client e.g. 
+
+```
+refresh_token=9yNOxJtZa5
+```  
+   
 ### UserInfo
 
-## Authorization Code Flow
+As described above the ID Token principally holds claims about the authentication event and the identity of the End-User. A Relying Party  wishing to obtain further data about the End-User can do this by presenting the access token they obtained to the UserInfo Endpoint. A successful request will result in a JSON object containing claims about the End-User being returned. As a minimum this will always contain the sub claim which the Relying Party must verify to protect against a token substitution attack. An example JSON object is given below:
+
+```
+  {
+   "sub": "248289761001",
+   "name": "Jane Doe",
+   "given_name": "Jane",
+   "family_name": "Doe",
+   "preferred_username": "j.doe",
+   "email": "janedoe@example.com",
+  }
+```

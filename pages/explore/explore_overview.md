@@ -4,13 +4,9 @@ keywords: explore, design, reference
 tags: [design,explore]
 sidebar: overview_sidebar
 permalink: explore_overview.html
-summary: An overview of the tools and documentation available to explore the Open APIs.
+summary: An overview of the documentation available to explore OpenID Connect.
 ---
 
-## API Sandbox
+[An Introduction to OpenID Connect](explore_intro_to_oidc)
 
-Details of any Open API sandbox environments.
-
-## API Reference
-
-Details of any Open API technical reference documentation.
+[Authorization Code Flow in Detail](explore_auth_code_flow)
