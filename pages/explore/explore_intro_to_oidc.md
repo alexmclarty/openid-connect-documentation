@@ -68,8 +68,8 @@ The diagram below depicts at a a high level the OpenID Connect authentication pr
 
 1. The Relying Party sends a request to the OpenID Provider to authenticate the End-User. The request must include the Relying Party's identity and the openid scope, it may optionally include other scopes e.g. the email scope if the Relying Party wishes to obtain the user's email address.
 2. The OpenID Provider authenticates the End-User using one of the methods available to it and obtains authorization from the End-user to provide the requested scopes to the identified Relying Party.
-3. Once the End-User has been authenticated and has authorized the request the OpenID Provider will respond to the Relying Parting with an ID Token identifying the End-User and optionally with Access and Refresh Tokens granting access to the UserInfo Endpoint.
-4. Optionally the Relying Party may request the additional user information (e.g. email address) from the UserInfo Endpoint by presenting the Access Token obtained in the previous step.
+3. Once the End-User has been authenticated and has authorized the request the OpenID Provider will respond to the Relying Parting with an id token identifying the End-User and optionally with access and refresh Tokens granting access to the UserInfo Endpoint.
+4. Optionally the Relying Party may request the additional user information (e.g. email address) from the UserInfo Endpoint by presenting the access token obtained in the previous step.
 
 The above gives a generic flow however there are three variations of this flow as described below.
 
@@ -79,7 +79,7 @@ OpenID Connect defines three types of authentication flow to cater for different
 
 #### Authorization Code Flow
 
-This is the most commonly used flow and is used with web applications as well as native applications that utilise a client/server architecture. In this flow rather than return the ID, Access and Refresh Tokens directly to the Relying Party's client component an Authorization Code is returned. The Relying Party client component passes this code to its server component which can then exchange it for the required tokens. This provides the dual benefits of:
+This is the most commonly used flow and is used with web applications as well as native applications that utilise a client/server architecture. In this flow rather than return the id, access and refresh Tokens directly to the Relying Party's client component an authorization code is returned. The Relying Party's server component can then exchange the code for the required tokens. This provides the dual benefits of:
 
 1. Not exposing any tokens to the user agent or applications with access to the user agent.
 2. Allowing the Relying Party to be authenticated before exchanging the code for tokens.
@@ -100,9 +100,9 @@ This section describes in more detail some of the data artefacts used in the flo
 
 ### ID Token
 
-The ID Token is a JSON Web Token [JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User and optionally data about the End-User.
+The id token is a JSON Web Token [JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User and optionally data about the End-User.
 
-As a minimum the ID Token contains the following claims:
+As a minimum the id token contains the following claims:
 
 Claim|Name|Description|
 -----|----|-----------|
@@ -112,7 +112,7 @@ aud|Audience(s)|The identifier of the Relying Party and any other parties intend
 exp|Expiration|The time on or after which the ID Token must not be accepted for processing.|
 iat|Issuance Time|The time at which the JWT was issued.|
 
-The ID Tokens may additionally contain other claims:
+The id token may additionally contain other claims:
 
 1. There are a number of optional standard claims that may be returned depending on the flow and the parameter provided in the initial request e.g. a relying Party may supply a nonce parameter in the original request and this will be returned unmodified in a nonce claim to allow the Relying Party to mitigate against a replay attack.
 
@@ -136,7 +136,7 @@ The claims are represented in a simple JSON object e.g.
 ```
 The JSON object is signed using a JSON Web Signature [JWS](https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41) and optionally they encrypted using JSON Web Encryption [JWE](http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption). Signing the token allows the integrity and origin of the token to be validated by the Relying Party whilst encrypting the token provides confidentiality.
 
-Finally the ID token header, JSON claims and signature are encoded into a base 64 URL-safe string e.g.
+Finally the id token header, JSON claims and signature are encoded into a base 64 URL-safe string e.g.
 
 ```
 "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlOWdkazcifQ.ewogImlzc
