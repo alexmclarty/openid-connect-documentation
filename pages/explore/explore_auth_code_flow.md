@@ -39,6 +39,7 @@ Before being able to interact with an OpenID Provider a Relying Party must regis
 1. The URIs of the OpenID Provider's authorization, token and user endpoints.
 2. A client identifier uniquely identifying the Relying Party.
 3. The Relying Party's redirection URIs to which responses may be redirected.
+4. A client authentication mechanism and associated credentials.
 
 ## Authentication Request
 
@@ -78,24 +79,196 @@ The OpenID Connect specification also defines a number of optional parameters th
 
 For more details see the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth). It should be noted that support for optional parameters is implementation specific.
 
-## Authentication and Authorization
+### Authentication and Authorization
 
-If the request is valid, the Authorization Server attempts to Authenticate the End-User or determines whether the End-User is Authenticated, depending upon the request parameter values used. The methods used by the Authorization Server to Authenticate the End-User (e.g. username and password, session cookies, etc.) are beyond the scope of this specification. An Authentication user interface MAY be displayed by the Authorization Server, depending upon the request parameter values used and the authentication methods used.
+If the request is valid the OpenID Provider will attempt to authenticate the End-User. The means used to do this are outside the scope of the OpenID Connect specification and will vary by implementation, but typically this will be done by loading a page in the End-User's user agent requesting the user to provide their credentials e.g. username and password and possibly a second factor like a One Time Password.
 
-The Authorization Server MUST attempt to Authenticate the End-User in the following cases:
+Once the End-User is authenticated the OpenID Provider must obtain an authorization decision before releasing information to the Relying Party. This or be done through an interactive dialogue with the End-User that makes it clear what is being consented to or by other means (for example, via previous administrative consent).
 
-The End-User is not already Authenticated.
-The Authentication Request contains the prompt parameter with the value login. In this case, the Authorization Server MUST reauthenticate the End-User even if the End-User is already authenticated.
-The Authorization Server MUST NOT interact with the End-User in the following case:
+The diagram below depicts example screen screens that might be implemented by an OpenID Provider:
 
-The Authentication Request contains the prompt parameter with the value none. In this case, the Authorization Server MUST return an error if an End-User is not already Authenticated or could not be silently Authenticated.
-When interacting with the End-User, the Authorization Server MUST employ appropriate measures against Cross-Site Request Forgery and Clickjacking as, described in Sections 10.12 and 10.13 of OAuth 2.0 [RFC6749].
+![Authentication and Authorization Screens](/images/OIDCLoginScreens.jpg)
+
+The manner in which the authentication and authorization are performed can be controlled to some degree by optional parameters in the authentication request as follows:
+
+|Name|Description|
+|----|-----------|
+|display|A string value that specifies how the the authentication and consent user interface pages are displayed to the End-User e.g. the value popup will cause the user agent to use a popup window.|
+|prompt|A list of string values that specifies whether to prompt the End-User for re-authentication and consent e.g. the value login will prompt the user for re-authentication even if they are already authenticated.|
+|max_age|Specifies the allowable elapsed time since the last time the End-User was actively authenticated. If the elapsed time is exceeded the End-User will be re-authenticated.|
+|ui_locales|The End-User's preferred languages and scripts for the user interface.|
+|id_token_hint|Specifies an id token previously issued by the OpenID Provider Authorization. If the End-User identified by the token is already logged in or is logged in by the request, then a positive response will be returned; otherwise an error will be returned.|
+|login_hint|A hint about the login identifier the End-User might use to log in. For example this hint can be used by a Relying Party if it first asks the End-User for their e-mail address (or other identifier) and then wants to pass that value as a hint to the OpenID Provider.|
+|acr_values|A list of string values specifying the authentication contexts to be used by the OpenID Provider in order of preference. This effectively allows the Relying Party to specify the strength of authentication performed e.g. Strong 2 Factor. The use of this parameter and the acr values supported is implementation specific.|
+
+Full details of these parameters can be found in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth). It should be noted that support for these parameters and the behaviour they drive is implementation specific.
+
+### Successful Response
+
+If the End-User is successfully authenticated and authorizes access to the data requested the OpenID Provider will return an authorisation code to the Relying Party. This is achieved by returning a HTTP 302 redirect request to the user agent requesting that the response is redirected to the URI specified by the Relying Party in the redirection_uri parameter of the authorize request.
+
+An example response is given below:
+
+```
+  HTTP/1.1 302 Found
+  Location: https://client.example.org/cb?
+    code=SplxlOBeZQQYbYS6WxSbIA
+    &state=af0ifjsldkj
+```
+
+The response will contain a code parameter and optionally a state parameter. 
+
+The code parameter holds the authorization code which is a string value. Some OpenID Provider implementations may encode state about the id token to be returned in the authorization code value, whilst others may use the authorization code value as an index into a data sore holding this state. In either case the content of authorization code is opaque to the Relying Party.
+
+The state parameter will be returned if a value was provided by the Relying Party in the authorize request. The Relying Party should validate that the value returned matches that supplied. The state value can additionally be used to mitigate against XSRF attacks by cryptographically binding the value of this parameter with a browser cookie (for more details see the [OAuth 2.0 Authorization Framework Specification] https://tools.ietf.org/html/rfc6749#section-10.12).
+
+### Error Response
+
+If the End-User denies the request or the authentication fails the OpenID Provider will return an error response to the Relying Party. As for a successful response this is achieved by returning a HTTP 302 redirect request to the user agent requesting that the response is redirected to the specified redirection URI.
+
+If the redirection URI specified is invalid an error will be returned directly to the user agent).
+
+HTTP errors unrelated to OpenID Connect are returned to the user agent using the appropriate HTTP status code.
+
+An example error response is given below:
+
+```
+  HTTP/1.1 302 Found
+  Location: https://client.example.org/cb?
+    error=invalid_request
+    &error_description=
+      Unsupported%20response_type%20value
+    &state=af0ifjsldkj
+```
+
+The response will contain an error and error_description parameter and optionally error_uri and state parameters.
+
+Standard error and error_description values are defined in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#AuthRequestValidation). Implementations may also define their own errors.
+
+The error_uri parameter may be used by implementations to specify a human-readable web page with information about the error, used to provide the client developer with additional information about the error.
+
+## Token Request
+
+Once the Relying Party server component has received an authorization code it can request the OpenID Provider to provide the associated id, access and refresh tokens. It does this by sending a HTTP POST request over TLS directly to the OpenID Provider's token endpoint URI as per the example below:
+
+```
+  POST /token HTTP/1.1
+  Host: server.example.com
+  Content-Type: application/x-www-form-urlencoded
+  Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+
+  grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
+    &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+```
+
+The following serialized form parameters must be provided in the request:
+
+|Name|Description|
+|----|-----------|
+|grant_type|This must be set to authorization_code.|
+|code|The authorization code received in response to the authentication request.|
+|redirect_uri|The redirection URI supplied in the original authentication request.|
+|client_id|The Relying Party client identifier (not required for HTTP Basic Authentication).| 
 
 
- TOC 
-3.1.2.4.  Authorization Server Obtains End-User Consent/Authorization
+### Client Authentication
 
-Once the End-User is authenticated, the Authorization Server MUST obtain an authorization decision before releasing information to the Relying Party. When permitted by the request parameters used, this MAY be done through an interactive dialogue with the End-User that makes it clear what is being consented to or by establishing consent via conditions for processing the request or other means (for example, via previous administrative consent). Sections 2 and 5.3 describe information release mechanisms.
-## Successful Response
+As part of the registration process the Relying Party and OpenID Provider will have agreed a mechanism by which the Relying Party can be authenticated when making the token request. This is required to ensure that the request is genuine and that the tokens are not returned to a third party masquerading as the Relying Party. 
 
-## Error Response
+The authentication mechanisms available will depend on the implementation but the OpenID Connect Specification supports the following methods:
+
+|Method|Description|
+|------|-----------|
+|client_secret_basic|Authentication using a client secret value in conjunction with the HTTP Basic authentication scheme. This is the default method and is illustrated in the example above.|
+|client_secret_post|Authentication using a client secret value included in a client_secret parameter in the request body.|
+|client_secret_jwt|Authentication using a JWT created with a Hash-based Message Authentication Code (HMAC) calculated from a client secret used as a shared key. The JWT must be sent as the value of a client_assertion parameter with a client_assertion_type parameter set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.|
+|private_key_jwt|Authentication using a JWT signed with a public key registered to the Relying Party. The JWT must be sent as the value of a client_assertion parameter with a client_assertion_type parameter set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.|
+|none|No authentication performed.|
+
+The example below shows the use of a signed JWT to authenticate (the JWT value has been abbreviated).
+
+```
+POST /token HTTP/1.1
+  Host: server.example.com
+  Content-Type: application/x-www-form-urlencoded
+
+  grant_type=authorization_code&
+    code=i1WsRn1uB1&
+    client_id=s6BhdRkqt3&
+    client_assertion_type=
+    urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
+    client_assertion=PHNhbWxwOl ... ZT
+```
+Full details on client authentication can be found in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication). 
+ 
+### Request Validation
+
+On receiving the request the OpenID Provider will authenticate the Relying Party, validate that the parameters provided in the token request are consistent with those in the authentication request and check that the authorisation code was issued to the authenticated Relying Party. 
+
+The OpenID Provider may also perform additional security checks, validating that the authorization code has not been used before and has not expired (typically an authorisation code is given short lifetime).
+
+### Successful Request
+
+If the request validation is successful the OpenID Provider will return HTTP 200 OK response that including id, access and refresh tokens as per the example below:
+
+```
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+  Cache-Control: no-store
+  Pragma: no-cache
+
+  {
+   "access_token": "SlAV32hkKG",
+   "token_type": "Bearer",
+   "refresh_token": "8xLOxBtZp8",
+   "expires_in": 3600,
+   "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlOWdkazcifQ.ewogImlzc
+     yI6ICJodHRwOi8vc2VydmVyLmV4YW1wbGUuY29tIiwKICJzdWIiOiAiMjQ4Mjg5
+     NzYxMDAxIiwKICJhdWQiOiAiczZCaGRSa3F0MyIsCiAibm9uY2UiOiAibi0wUzZ
+     fV3pBMk1qIiwKICJleHAiOiAxMzExMjgxOTcwLAogImlhdCI6IDEzMTEyODA5Nz
+     AKfQ.ggW8hZ1EuVLuxNuuIJKX_V8a_OMXzR0EHR9R6jgdqrOOF4daGU96Sr_P6q
+     Jp6IcmD3HP99Obi1PRs-cwh3LO-p146waJ8IhehcwL7F09JdijmBqkvPeB2T9CJ
+     NqeGpe-gccMg4vfKjkM8FcGvnzZUN4_KSP0aAp1tOJ1zZwgjxqGByKHiOtX7Tpd
+     QyHE5lcMiKPXfEIQILVq0pc_E2DzL7emopWoaoZTF_m0_N0YzFC6g6EJbOEoRoS
+     K5hoDalrcvRYLSrQAZZKflyuVCyixEoV9GfNQC3_osjzw2PAithfubEEBLuVVk4
+     XUVrWOLrLl0nx7RkKU8NXNHq-rvKMzqg"
+  }
+```
+
+The response will include the HTTP response header fields and values:
+
+```
+Header Name	Header Value
+Cache-Control	no-store
+Pragma	no-cache
+```
+
+The response will include the following parameters:
+
+|Name|Description|
+|----|-----------|
+|acess_token|The access token which may be used to access the userinfo endpoint.|
+|token_type|Set to Bearer.|
+|refresh_token|A refresh token which can be used to obtain a new access token.|
+|expires_in|The lifetime in seconds of the access token.|
+|id_token|The id token comprising a bas 64 encoded id token header,JSON claim object and signature.|
+
+```
+{"alg":"RS256","kid":"1e9gdk7"}
+```
+
+```
+{
+ "iss": "http://server.example.com",
+ "sub": "248289761001",
+ "aud": "s6BhdRkqt3",
+ "nonce": "n-0S6_WzA2Mj",
+ "exp": 1311281970,
+ "iat": 1311280970
+}
+```
+
+ 
+ 
+
+
