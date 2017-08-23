@@ -100,23 +100,23 @@ This section describes in more detail some of the data artefacts used in the flo
 
 ### ID Token
 
-The id token is a JSON Web Token [JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User and optionally data about the End-User.
+The id token is a JSON Web Token [JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User, their identity and optionally other data about them.
 
 As a minimum the id token contains the following claims:
 
-Claim|Name|Description|
------|----|-----------|
-iss|Issuer Identifier|An identifier for the issuer of the response.|
-sub|Subject Identifier|A unique identifier for the End-User.|
-aud|Audience(s)|The identifier of the Relying Party and any other parties intended as a recipient.|
-exp|Expiration|The time on or after which the ID Token must not be accepted for processing.|
-iat|Issuance Time|The time at which the JWT was issued.|
+|Claim|Name|Description|
+|-----|----|-----------|
+|iss|Issuer Identifier|An identifier for the issuer of the response.|
+|sub|Subject Identifier|A unique identifier for the End-User.|
+|aud|Audience(s)|The identifier of the Relying Party and any other parties intended as a recipient.|
+|exp|Expiration|The time on or after which the ID Token must not be accepted for processing.|
+|iat|Issuance Time|The time at which the JWT was issued.|
 
 The id token may additionally contain other claims:
 
 1. There are a number of optional standard claims that may be returned depending on the flow and the parameter provided in the initial request e.g. a relying Party may supply a nonce parameter in the original request and this will be returned unmodified in a nonce claim to allow the Relying Party to mitigate against a replay attack.
 
-2. A OpenID Provider implementation may optionally decide to return additional user information in the ID Token e.g. a name claim containg the End-User's full name.
+2. A OpenID Provider implementation may optionally decide to return additional user information in the ID Token e.g. a name claim containing the End-User's full name.
 
 For more details see the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#IDToken).
 
@@ -134,9 +134,9 @@ The claims are represented in a simple JSON object e.g.
  "acr": "urn:mace:incommon:iap:silver"
 }
 ```
-The JSON object is signed using a JSON Web Signature [JWS](https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41) and optionally they encrypted using JSON Web Encryption [JWE](http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption). Signing the token allows the integrity and origin of the token to be validated by the Relying Party whilst encrypting the token provides confidentiality.
+The JSON object is signed using a JSON Web Signature [JWS](https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41) and optionally may be encrypted using JSON Web Encryption [JWE](http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption). Signing the token allows the integrity and origin of the token to be validated by the Relying Party whilst encrypting the token provides confidentiality.
 
-Finally the id token header, JSON claims and signature are encoded into a base 64 URL-safe string e.g.
+Finally the id token header, JSON claims and signature are encoded into a Base64URL strings separated by a . character e.g.
 
 ```
 "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlOWdkazcifQ.ewogImlzc

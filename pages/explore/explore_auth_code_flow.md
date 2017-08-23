@@ -37,9 +37,10 @@ This flow is described in much more detail in the following sections.
 Before being able to interact with an OpenID Provider a Relying Party must register with the provider. During this process the following information, as a minimum, will be exchanged:
 
 1. The URIs of the OpenID Provider's authorization, token and user endpoints.
-2. A client identifier uniquely identifying the Relying Party.
+2. An issuer identifier identifying the OpenID Provider.
+4. A client identifier uniquely identifying the Relying Party.
 3. The Relying Party's redirection URIs to which responses may be redirected.
-4. A client authentication mechanism and associated credentials.
+5. A client authentication mechanism and associated credentials.
 
 ## Authentication Request
 
@@ -65,7 +66,7 @@ GET /authorize?
     &state=af0ifjsldkj
     &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb HTTP/1.1
 ```
-The OpenID Connect specification defines a number of mandatory and recommended parameters to use in the request. The minimum recommended set is as follows:
+The OpenID Connect Core Specification defines a number of mandatory and recommended parameters to use in the request. The minimum recommended set is as follows:
 
 |Name|Description|
 |----|-----------|
@@ -75,13 +76,13 @@ The OpenID Connect specification defines a number of mandatory and recommended p
 |redirect_uri|This is the URI to which the response should be sent. This must exactly match one of the Relying Party's redirection URIs registered with the OpenID Provider.|
 |state|It is recommended that client's use this parameter to maintain state between the request and the callback. Typically, Cross-Site Request Forgery (CSRF, XSRF) mitigation is done by cryptographically binding the value of this parameter with a browser cookie.|
 
-The OpenID Connect specification also defines a number of optional parameters that may be used to modify the behaviour of the authentication process. For example the prompt parameter can be used to control whether the user is prompted for re-authentication or not. 
+The OpenID Connect Core Specification also defines a number of optional parameters that may be used to modify the behaviour of the authentication process. For example the prompt parameter can be used to control whether the user is prompted for re-authentication or not. 
 
 For more details see the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth). It should be noted that support for optional parameters is implementation specific.
 
 ### Authentication and Authorization
 
-If the request is valid the OpenID Provider will attempt to authenticate the End-User. The means used to do this are outside the scope of the OpenID Connect specification and will vary by implementation, but typically this will be done by loading a page in the End-User's user agent requesting the user to provide their credentials e.g. username and password and possibly a second factor like a One Time Password.
+If the request is valid the OpenID Provider will attempt to authenticate the End-User. The means used to do this are outside the scope of the OpenID Connect Core Specification and will vary by implementation, but typically this will be done by loading a page in the End-User's user agent requesting the user to provide their credentials e.g. username and password and possibly a second factor like a One Time Password.
 
 Once the End-User is authenticated the OpenID Provider must obtain an authorization decision before releasing information to the Relying Party. This or be done through an interactive dialogue with the End-User that makes it clear what is being consented to or by other means (for example, via previous administrative consent).
 
@@ -103,7 +104,7 @@ The manner in which the authentication and authorization are performed can be co
 
 Full details of these parameters can be found in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth). It should be noted that support for these parameters and the behaviour they drive is implementation specific.
 
-### Successful Response
+### Authentication Successful Response
 
 If the End-User is successfully authenticated and authorizes access to the data requested the OpenID Provider will return an authorisation code to the Relying Party. This is achieved by returning a HTTP 302 redirect request to the user agent requesting that the response is redirected to the URI specified by the Relying Party in the redirection_uri parameter of the authorize request.
 
@@ -122,11 +123,11 @@ The code parameter holds the authorization code which is a string value. Some Op
 
 The state parameter will be returned if a value was provided by the Relying Party in the authorize request. The Relying Party should validate that the value returned matches that supplied. The state value can additionally be used to mitigate against XSRF attacks by cryptographically binding the value of this parameter with a browser cookie (for more details see the [OAuth 2.0 Authorization Framework Specification] https://tools.ietf.org/html/rfc6749#section-10.12).
 
-### Error Response
+### Authentication Error Response
 
 If the End-User denies the request or the authentication fails the OpenID Provider will return an error response to the Relying Party. As for a successful response this is achieved by returning a HTTP 302 redirect request to the user agent requesting that the response is redirected to the specified redirection URI.
 
-If the redirection URI specified is invalid an error will be returned directly to the user agent).
+If the redirection URI specified is invalid an error will be returned directly to the user agent.
 
 HTTP errors unrelated to OpenID Connect are returned to the user agent using the appropriate HTTP status code.
 
@@ -136,14 +137,13 @@ An example error response is given below:
   HTTP/1.1 302 Found
   Location: https://client.example.org/cb?
     error=invalid_request
-    &error_description=
-      Unsupported%20response_type%20value
+    &error_description=Unsupported%20response_type%20value
     &state=af0ifjsldkj
 ```
 
-The response will contain an error and error_description parameter and optionally error_uri and state parameters.
+The response will contain an error parameter and optionally error_description, error_uri and state parameters.
 
-Standard error and error_description values are defined in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#AuthRequestValidation). Implementations may also define their own errors.
+Standard error values are defined in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#AuthRequestValidation). Implementations may also define their own errors.
 
 The error_uri parameter may be used by implementations to specify a human-readable web page with information about the error, used to provide the client developer with additional information about the error.
 
@@ -158,7 +158,7 @@ Once the Relying Party server component has received an authorization code it ca
   Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
 
   grant_type=authorization_code&code=SplxlOBeZQQYbYS6WxSbIA
-    &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
+  &redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb
 ```
 
 The following serialized form parameters must be provided in the request:
@@ -175,7 +175,7 @@ The following serialized form parameters must be provided in the request:
 
 As part of the registration process the Relying Party and OpenID Provider will have agreed a mechanism by which the Relying Party can be authenticated when making the token request. This is required to ensure that the request is genuine and that the tokens are not returned to a third party masquerading as the Relying Party. 
 
-The authentication mechanisms available will depend on the implementation but the OpenID Connect Specification supports the following methods:
+The authentication mechanisms available will depend on the implementation but the OpenID Connect Core Specification supports the following methods:
 
 |Method|Description|
 |------|-----------|
@@ -193,11 +193,11 @@ POST /token HTTP/1.1
   Content-Type: application/x-www-form-urlencoded
 
   grant_type=authorization_code&
-    code=i1WsRn1uB1&
-    client_id=s6BhdRkqt3&
-    client_assertion_type=
-    urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
-    client_assertion=PHNhbWxwOl ... ZT
+  code=i1WsRn1uB1&
+  client_id=s6BhdRkqt3&
+  client_assertion_type=
+  urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
+  client_assertion=PHNhbWxwOl ... ZT
 ```
 Full details on client authentication can be found in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication). 
  
@@ -207,9 +207,19 @@ On receiving the request the OpenID Provider will authenticate the Relying Party
 
 The OpenID Provider may also perform additional security checks, validating that the authorization code has not been used before and has not expired (typically an authorisation code is given short lifetime).
 
-### Successful Request
+### Token Successful Response
 
-If the request validation is successful the OpenID Provider will return HTTP 200 OK response that including id, access and refresh tokens as per the example below:
+If the request validation is successful the OpenID Provider will return an HTTP 200 OK response including id, access and refresh tokens as in the example below:
+
+Headers
+
+```
+Header Name	Header Value
+Cache-Control	no-store
+Pragma	no-cache
+```
+
+Body
 
 ```
   HTTP/1.1 200 OK
@@ -235,15 +245,7 @@ If the request validation is successful the OpenID Provider will return HTTP 200
   }
 ```
 
-The response will include the HTTP response header fields and values:
-
-```
-Header Name	Header Value
-Cache-Control	no-store
-Pragma	no-cache
-```
-
-The response will include the following parameters:
+The response body will include the following parameters:
 
 |Name|Description|
 |----|-----------|
@@ -251,11 +253,15 @@ The response will include the following parameters:
 |token_type|Set to Bearer.|
 |refresh_token|A refresh token which can be used to obtain a new access token.|
 |expires_in|The lifetime in seconds of the access token.|
-|id_token|The id token comprising a bas 64 encoded id token header,JSON claim object and signature.|
+|id_token|The Base64URL encoded id token.|
+
+The id token is comprises of three Base64URL encoded elements separated by a . character. The first element is the id token header. If we decode the value from the example above we get the string below that specifies that the token has been signed with an RSA Signature with SHA-256 using the key identified by the string "1e9gdk7".
 
 ```
 {"alg":"RS256","kid":"1e9gdk7"}
 ```
+
+Decoding the second element gives us the JSON object containing the claims about the user. For example decoding the value from the example above gives:
 
 ```
 {
@@ -268,7 +274,145 @@ The response will include the following parameters:
 }
 ```
 
- 
- 
+The third element is the signature over the JSON object. Details on how this signature is created and on how to validate it can be found in the [JSON Web Signature Specification](https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41).
 
+#### ID Token Validation
+
+The [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation) specifies the validation the Relying Party should perform on the id token. This includes but is not limited to the the following:
+
+1. The issuer identifier for the OpenID Provider must exactly match the value of the iss claim.
+2. The aud claim contains the client id value of the Relying Party.
+3. The OpenID Provider should be authenticated. The Relying Party may choose to do this by relying on TLS server validation or by checking the token signature.
+4. The current time must be before the time represented by the exp claim.
+
+#### Access Token Validation
+
+An OpenID Provider may optionally include an additional at_hash claim in the id token. It will hold a Base64URL encoding of the left-most half of the hash of the access token value, where the hash algorithm used is specified in the alg parameter of the id token header. The Relying Party can use this value to check the integrity of the access token.
+
+### Token Error Response
+ 
+If the Token Request is invalid or unauthorized an HTTP 400 response will be returned as in the following example:
+
+```
+  HTTP/1.1 400 Bad Request
+  Content-Type: application/json
+  Cache-Control: no-store
+  Pragma: no-cache
+
+  {
+   "error": "invalid_request"
+  }
+```
+The response will contain an error parameter and optionally error_description and error_uri parameters.
+
+Standard error values are defined in the [OAuth 2.0 Authorization Framework Specification](https://tools.ietf.org/html/rfc6749#section-5.2). Implementations may also define their own errors.
+
+The error_uri parameter may be used by implementations to specify a human-readable web page with information about the error, used to provide the client developer with additional information about the error.
+
+## UserInfo Request
+
+Typically the id token only contains claims about the authentication event and the identity of the End-User. Other information about the End-User can be requested by including additional scopes in the authentication request as in the [example request](#authentication-request) above which includes the standard profile and email scopes.
+
+If the required claims are not returned in the id token the Relying Party can obtain the additional claims by presenting the access token to the OpenID Provider's userinfo endpoint. This is achieved by sending a HTTP GET request over TLS to the userinfo endpoint URI, passing the access token value in the Authorization header using the Bearer authentication scheme. 
+
+This is illustrated in the example below:
+
+```
+  GET /userinfo HTTP/1.1
+  Host: server.example.com
+  Authorization: Bearer SlAV32hkKG
+```
+
+### UserInfo Successful Response
+
+The userinfo claims will be returned in a HTTP 200 OK response as in the example below:
+
+```
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+
+  {
+   "sub": "248289761001",
+   "name": "Jane Doe",
+   "given_name": "Jane",
+   "family_name": "Doe",
+   "preferred_username": "j.doe",
+   "email": "janedoe@example.com",
+   "picture": "http://example.com/janedoe/me.jpg"
+  }
+```
+
+The sub claim will always be included in the response and this should be verified by the Relying Party to mitigate against token substitution attacks.
+
+For privacy reasons OpenID Providers may elect to not return values for some requested Claims. In that case the claim will be omitted from the JSON object rather than being present with a null or empty string value.
+
+During registration the Relying Party may request that the userinfo response is signed or encrypted in which the claims will be returned in a JWT and the content type will be set to application/jwt. If signed the userinfo Response will contain the iss and aud claims. The Relying Party should validate that the iss value matches OpenID provider's issuer identifier and the aud value contains the Relying Party client id.
+
+The Relying Party should authenticate the OpenID Provider either by checking the TLS certificate or by validating the signature of the JWT if provided.
+
+### UserInfo Error Response
+
+When an error condition occurs an error response as defined in the [OAuth 2.0 Bearer Token Usage Specification](https://tools.ietf.org/html/rfc6750#section-3.1) will be returned.
+
+An example error response is given below:
+
+```
+  HTTP/1.1 401 Unauthorized
+  WWW-Authenticate: error="invalid_token",
+    error_description="The Access Token expired"
+```
+
+## Using Refresh Tokens
+
+An access token is a bearer token that allows any party in possession of it to access a resource without having to prove their identity. Although they are distributed in a safe manner they are typically short lived to protect against them being misused if they are obtained by unauthorized third parties.
+
+A Relying Party may determine that its access token has expired by inspection of the exp claim in the original token response or as a result of receiving an invalid_token error response when attempting to access the userinfo endpoint. 
+
+Should the Relying Party want to refresh the access token it may do so by re-authenticating to the token endpoint and presenting their refresh token. To do this they must a send a HTTP POST request over TLS to the token endpoint as in the example below:
+
+```
+  POST /token HTTP/1.1
+  Host: server.example.com
+  Content-Type: application/x-www-form-urlencoded
+
+  client_id=s6BhdRkqt3
+  &client_secret=some_secret12345
+  &grant_type=refresh_token
+  &refresh_token=8xLOxBtZp8
+  &scope=openid%20profile
+```
+
+The following serialized form parameters must be provided in the request:
+
+|Name|Description|
+|----|-----------|
+|grant_type|This must be set to refresh_token.|
+|refresh_token|The previously received refresh token.|
+|scope|The scopes required for the new access token.|
+
+The Relying Party must authenticate to the token endpoint using the authentication method registered for its client_id (see [Client Authentication](#client-authentication)). In the example given above the Relying Party has used the client_secret_post method supplying its client id and secret in the request body.
+
+### Refresh Successful Response
+
+Upon successful validation of the refresh token the OpenID Provider will return a response as for the original token request (see [Token Successful Response](token-successful-response)), with the exception that it might not contain an id token.
+
+An example response is given below:
+
+```
+  HTTP/1.1 200 OK
+  Content-Type: application/json
+  Cache-Control: no-store
+  Pragma: no-cache
+
+  {
+   "access_token": "TlBN45jURg",
+   "token_type": "Bearer",
+   "refresh_token": "9yNOxJtZa5",
+   "expires_in": 3600
+  }
+```
+
+### Refresh Error Response
+
+If the Refresh Request is invalid or unauthorized the OpenID Provider will return a response as for the original request (see [Token Error Response](token-error-response)).
 
