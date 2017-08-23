@@ -31,6 +31,9 @@ entries:
     - title: Authorization Code Flow in Detail
       url: /explore_auth_code_flow.html
       output: web
+    - title: Other OpenID Connect Features
+      url: /explore_other_features.html
+      output: web
 
   - title: Develop
     output: web
