@@ -9,7 +9,7 @@ summary: An introduction to the main concepts of OpenID Connect.
 
 ## Introduction
 
-OpenID Connect 1.0 is a simple identity layer on top of the OAuth 2.0 protocol. It allows Clients to verify the identity of an End-User based on the authentication performed by an Authorization Server, as well as to obtain basic profile information about the End-User in an interoperable and REST-like manner.
+OpenID Connect 1.0 is a simple identity layer on top of the OAuth 2.0 protocol. It allows Clients to verify the identity of an End-User based on the authentication performed by an authorization server, as well as to obtain basic profile information about the End-User in an interoperable and REST-like manner.
 
 OpenID Connect allows clients of all types, including Web-based, mobile, and JavaScript clients, to request and receive information about authenticated sessions and end-users. The specification suite is extensible, allowing participants to use optional features such as encryption of identity data, discovery of OpenID Providers and session management.
 
@@ -29,19 +29,19 @@ The following actors take part in an OpenID Connect authentication:
   
 * **End-User**
 
-  The human participant that being authenticated and about whom the Relying Party is requesting information.
+  The human participant being authenticated and about whom the Relying Party is requesting information.
 
 ### Key Terms
 
-Before attempting to understand the OpenID Connect authentication process it is worth understanding the following key terms:
+The following key terms are used in the rest of the page:
 
 * **Claim**
 
-  A piece of information asserted about an entity. The OpenID Connect defines a number of standard claims e.g. the name claim represents an End-User's full name in displayable format.
+  A piece of information asserted about an entity. OpenID Connect defines a number of standard claims e.g. the name claim represents an End-User's full name in displayable format.
   
 * **Scope**
 
-  A collection of claims. The OpenID Connect profile defines a number of standard scopes that a Relying Party can request about an authentication event or End-User. For example the profile scope contains: name, family_name, given_name etc.
+  A collection of claims. OpenID Connect defines a number of standard scopes that a Relying Party can request about an authentication event or End-User. For example the profile scope contains claims such as: name, family_name, given_name etc.
 
 * **ID Token**
 
@@ -57,8 +57,7 @@ Before attempting to understand the OpenID Connect authentication process it is 
    
 * **UserInfo Endpoint**
 
-  A protected Resource that, when presented with an access token by the RP returns authorized information about an End-User.
-Access Token Scope
+  A protected Resource that, when presented with an access token returns information about an End-User.
    
 ## High Level Process Flow
 
@@ -68,14 +67,14 @@ The diagram below depicts at a a high level the OpenID Connect authentication pr
 
 1. The Relying Party sends a request to the OpenID Provider to authenticate the End-User. The request must include the Relying Party's identity and the openid scope, it may optionally include other scopes e.g. the email scope if the Relying Party wishes to obtain the user's email address.
 2. The OpenID Provider authenticates the End-User using one of the methods available to it and obtains authorization from the End-user to provide the requested scopes to the identified Relying Party.
-3. Once the End-User has been authenticated and has authorized the request the OpenID Provider will respond to the Relying Parting with an id token identifying the End-User and optionally with access and refresh Tokens granting access to the UserInfo Endpoint.
-4. Optionally the Relying Party may request the additional user information (e.g. email address) from the UserInfo Endpoint by presenting the access token obtained in the previous step.
+3. Once the End-User has been authenticated and has authorized the request the OpenID Provider will respond to the Relying Parting with an id token identifying the End-User and optionally with access and refresh tokens granting access to the userinfo endpoint.
+4. Optionally the Relying Party may request the additional user information (e.g. email address) from the userinfo endpoint by presenting the access token obtained in the previous step.
 
 The above gives a generic flow however there are three variations of this flow as described below.
 
 ### Authentication Flow Types
 
-OpenID Connect defines three types of authentication flow to cater for different client types: the Authorization Code Flow, the Implicit Flow and the Hybrid Flow. These are briefly described below with the Authorization Code Flow being described in more detail in a later [section](#authorization-code-flow).
+OpenID Connect defines three types of authentication flow to cater for different client types: the Authorization Code Flow, the Implicit Flow and the Hybrid Flow. These are briefly described below with the Authorization Code Flow being described in more detail [here](explore_auth_code_flow).
 
 #### Authorization Code Flow
 
@@ -100,25 +99,7 @@ This section describes in more detail some of the data artefacts used in the flo
 
 ### ID Token
 
-The id token is a JSON Web Token [JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User, their identity and optionally other data about them.
-
-As a minimum the id token contains the following claims:
-
-|Claim|Name|Description|
-|-----|----|-----------|
-|iss|Issuer Identifier|An identifier for the issuer of the response.|
-|sub|Subject Identifier|A unique identifier for the End-User.|
-|aud|Audience(s)|The identifier of the Relying Party and any other parties intended as a recipient.|
-|exp|Expiration|The time on or after which the ID Token must not be accepted for processing.|
-|iat|Issuance Time|The time at which the JWT was issued.|
-
-The id token may additionally contain other claims:
-
-1. There are a number of optional standard claims that may be returned depending on the flow and the parameter provided in the initial request e.g. a relying Party may supply a nonce parameter in the original request and this will be returned unmodified in a nonce claim to allow the Relying Party to mitigate against a replay attack.
-
-2. A OpenID Provider implementation may optionally decide to return additional user information in the ID Token e.g. a name claim containing the End-User's full name.
-
-For more details see the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+The id token is a JSON Web Token ([JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User and their identity. It may optionally contain other data about the End-User.
 
 The claims are represented in a simple JSON object e.g.
 
@@ -151,9 +132,29 @@ K5hoDalrcvRYLSrQAZZKflyuVCyixEoV9GfNQC3_osjzw2PAithfubEEBLuVVk4
 XUVrWOLrLl0nx7RkKU8NXNHq-rvKMzqg"
 ```
 
-### Access and Refresh Tokens
+As a minimum the id token will contain the following claims:
 
-Access tokens are credentials used to access protected resources. An access token represents specific scopes and durations of access, granted by the resource owner, and enforced by the resource server and authorization. OAuth 2.0 supports a number of access token types, the type used in OpenID Connect are bearer tokens which can be simply understood as meaning "give access to the bearer of this token". 
+|Claim|Name|Description|
+|-----|----|-----------|
+|iss|Issuer Identifier|An identifier for OpenID Provider.|
+|sub|Subject Identifier|A unique identifier for the End-User.|
+|aud|Audience(s)|The identifier of the Relying Party and any other parties intended as a recipient.|
+|exp|Expiration|The time on or after which the ID Token must not be accepted for processing.|
+|iat|Issuance Time|The time at which the JWT was issued.|
+
+The id token may additionally contain other claims:
+
+1. OpenID Connect defines a number of optional claims that may be returned depending on the flow being used and the parameters provided in the initial request. For example a Relying Party may supply a nonce parameter in the original request and this will be returned unmodified in a nonce claim to allow the Relying Party to mitigate against a replay attack.
+
+2. Additionally an OpenID Provider implementation may optionally decide to return additional user information in the ID Token e.g. a name claim containing the End-User's full name.
+
+For more details see the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+
+### Access Token
+
+An access tokens is a credential used to access protected resources. It represents specific scopes and durations of access, granted by the resource owner, and enforced by the resource server and authorization.
+
+OAuth 2.0 supports a number of access token types, the type used by OpenID Connect are bearer tokens which can be simply understood as meaning "give access to the bearer of this token". 
 
 Access tokens can have different formats, structures, and methods of utilization based on the resource server security requirements. However they are represented as a string the structure of which is usually opaque to the client. An example of a returned access token is given below:
 
@@ -161,7 +162,13 @@ Access tokens can have different formats, structures, and methods of utilization
 access_token=jHkWEdUXMU1BwAsC4vtUsZwnNvTIxEl0z9K3vx5KF0Y
 ```
 
-Refresh tokens are credentials used to obtain access tokens.  Refresh tokens are issued to the client by the authorization server and are  used to obtain a new access token when the current one becomes invalid or expires, or to obtain additional access tokens with identical or narrower scope. Unlike access tokens, refresh tokens are intended for use only with authorization servers and are never sent to resource servers. As for access tokens a refresh token is represented as a string that is usually opaque to the client e.g. 
+### Refresh Token
+
+A refresh token is a credential used to obtain access tokens.  Refresh tokens are issued to the client by the authorization server and are  used to obtain a new access token when the current one becomes invalid or expires, or to obtain additional access tokens with identical or narrower scope.
+
+Unlike access tokens, refresh tokens are intended for use only with authorization servers and are never sent to resource servers. 
+
+As for access tokens a refresh token is represented as a string that is usually opaque to the client e.g. 
 
 ```
 refresh_token=9yNOxJtZa5
@@ -169,7 +176,11 @@ refresh_token=9yNOxJtZa5
    
 ### UserInfo
 
-As described above the ID Token principally holds claims about the authentication event and the identity of the End-User. A Relying Party  wishing to obtain further data about the End-User can do this by presenting the access token they obtained to the UserInfo Endpoint. A successful request will result in a JSON object containing claims about the End-User being returned. As a minimum this will always contain the sub claim which the Relying Party must verify to protect against a token substitution attack. An example JSON object is given below:
+As described above the id token principally holds claims about the authentication event and the identity of the End-User. A Relying Party  wishing to obtain further data about the End-User can do this by presenting the access token they obtained to the userinfo endpoint.
+
+A successful request will result in a JSON object containing claims about the End-User being returned. As a minimum this will always contain the sub claim which the Relying Party must verify to protect against a token substitution attack.
+
+An example JSON object is given below:
 
 ```
   {

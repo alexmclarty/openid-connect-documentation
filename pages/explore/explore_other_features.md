@@ -11,7 +11,7 @@ summary: An overview of other features of the OpenID Connect specifications.
 
 The previous pages introduced the high level concepts of the OpenID Connect Core Specification and provided a more detailed explanation of the Authorization Code Flow.
 
-The purpose of this page is to give an overview of some of the aspects of the wider set of OpenID Connect specifications (the full set of which can be found [here](http://openid.net/connect/)).  
+The purpose of this page is to give an overview of some of the wider set of OpenID Connect specifications (the full set of which can be found [here](http://openid.net/connect/)).  
 
 ## Discovery
 
@@ -214,8 +214,30 @@ Content-Type: application/json;charset=UTF-8
 
 For further details see the [JWK Specification](https://tools.ietf.org/html/rfc7517).
 
-## Session Management
+## Session Handling
 
-## Front-Channel Logout
+The OpenID Connect Core Specification details how a Relying Party can request an OpenID Provider to authenticate an End-User and provide information about them, but it does not contain any information on how the authenticated session should then be managed e.g. how a End-User can logout and how this is communicated to the Relying Party.
 
-## Back-Channel Logout
+There are however three draft standards that attempt to address this issu. These are briefly described below: 
+
+### Session Management
+
+The [OpenID Connect Session Management Specification](http://openid.net/specs/openid-connect-session-1_0.html) describes a mechanism whereby a Relying Party can determine the state of an authenticated End-User's session. 
+
+This is achieved by the Replying Party instantiating two invisible iframes in the End-User's user agent, one for the Relying Party and one for the OpenID Provider. The OP iframe is responsible for monitoring the user state at the OpenID Provider (the means of achieving this is not specified but could it be for example by use of a state cookie). The RP iframe can then periodically query the OP iframe using the JavaScript postMessage function to determine whether the End-User's authentication state has changed and if so what the new state is.
+
+The specification also describes a mechanism to allow the RP iframe to be used to initiate a user logout. 
+
+Support for this draft specification is implementation dependent.
+
+### Front-Channel Logout
+
+The [OpenID Connect Front-Channel Logout Specification](http://openid.net/specs/openid-connect-frontchannel-1_0.html) describes a mechanism whereby font-channel communication via an End-User's user agent is used to trigger a logout of the user at Relying Party.
+
+Relying Parties supporting this specification register a logout URI with the OpenID Provider as part of the client registration. The OpenID Provider will then keep track of all End-User sessions for such Relying Parties. When the End-User initiates a logout (either directly with the OpenID Provider or indirectly via by the Relying Party) the OpenID Provider will cause a page to be loaded in the End-User's user agent that renders the affected logout URIs thus triggering a logout at each of the Relying Parties.
+
+### Back-Channel Logout
+
+The [OpenID Connect Front-Channel Logout Specification](http://openid.net/specs/openid-connect-backchannel-1_0.html) describes an alternative logout mechanism whereby the logout notification is sent directly from the OpenID Provider to the Relying Party server component.
+
+Relying Parties supporting this specification register a back-channel logout URI with the OpenID Provider as part of the client registration. The OpenID Provider will then keep track of all End-User sessions for such Relying Parties. When the End-User initiates a logout (either directly with the OpenID Provider or indirectly via by the Relying Party) the OpenID Provider will POST a logout JWT to each affected Relying Party. The logout JWT is similar to an id token in that it contains the End-User's subject identifier and is signed with the Relying Party's public key. On receipt of the logout JWT the Relying Party destroy's the End-Users local session.

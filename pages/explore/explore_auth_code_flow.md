@@ -9,9 +9,9 @@ summary: A detailed description of the Authorization Code Flow.
 
 ## Introduction
 
-The Authorization Code Flow is the most commonly used variant of the OpenID Connect authentication flows. It is suited for use with web applications and native applications that utilise a client/server architecture. In this flow rather than return the id, access and refresh tokens directly to the Relying Party's client component an authorization code is returned.
+The Authorization Code Flow is the most commonly used variant of the OpenID Connect authentication flows. It is suited for use with web applications and native applications that utilise a client/server architecture. In this flow rather than return the id, access and refresh tokens directly to the Relying Party's client component an authorization code is returned. The Relying Party's server component can then exchange the code for the required tokens.
 
-The Relying Party's server component can then exchange the code for the required tokens. This provides the dual benefits of:
+This provides the dual benefits of:
 
 1. Not exposing any tokens to the user agent or applications with access to the user agent.
 2. Allowing the Relying Party to be authenticated before exchanging the code for tokens.
@@ -28,25 +28,28 @@ The diagram below depicts at a a high level the Authorization Code Flow.
 2. The OpenID Provider authenticates the End-User using one of the methods available to it and obtains authorization from the End-user to provide the requested scopes to the identified Relying Party.
 3. Once the End-User has been authenticated and has authorized the request the OpenID Provider will return an authorization code to the Relying Party's server component.
 4. The Relying Party's server component contacts the token endpoint and exchanges the authorization code for an id token identifying the End-User and optionally access and refresh tokens granting access to the userinfo endpoint.
-4. Optionally the Relying Party may request the additional user information (e.g. email address) from the UserInfo Endpoint by presenting the access token obtained in the previous step.
+4. Optionally the Relying Party may request the additional user information (e.g. email address) from the userInfo endpoint by presenting the access token obtained in the previous step.
 
 This flow is described in much more detail in the following sections.
 
 ## Registration
 
-Before being able to interact with an OpenID Provider a Relying Party must register with the provider. During this process the following information, as a minimum, will be exchanged:
+Before being able to interact with an OpenID Provider a Relying Party must first register with the provider. During this process the following items will be exchanged:
 
 1. The URIs of the OpenID Provider's authorization, token and user endpoints.
 2. An issuer identifier identifying the OpenID Provider.
+3. A mechanism for obtaining the OpenID Provider's public keys.
 4. A client identifier uniquely identifying the Relying Party.
 3. The Relying Party's redirection URIs to which responses may be redirected.
 5. A client authentication mechanism and associated credentials.
 
+This may be achieved via manual means. However OpenID Connect also provides an electonic way of doing this, see the [Discovery](explore_other_features#discovery) and [Dynamic Registration](explore_other_features#dynamic_registration) sections in the the Other OpenID Connect Features page for further details.
+
 ## Authentication Request
 
-When a Relying Party requires that an End-User is authenticated they should cause a HTTP GET request to be sent from the End-User's user agent to the OpenID Provider's authorization endpoint. This request must be made over TLS.
+When a Relying Party requires that an End-User is authenticated they should cause a HTTP GET request over TLS to be sent from the End-User's user agent to the OpenID Provider's authorization endpoint.
 
-The request may be generated indirectly via a HTTP 302 redirect response (for example when a user attempts to access a protected resource) or directly e.g. as a result of a login button being hit. An example of each is given below:
+The request may be generated indirectly via a HTTP 302 redirect response (for example in response to a user attempting to access a protected resource) or directly e.g. as a result of a login button being hit. An example of each is given below:
 
 ```
 HTTP/1.1 302 Found
@@ -84,7 +87,7 @@ For more details see the [OpenID Connect Core Specification](http://openid.net/s
 
 If the request is valid the OpenID Provider will attempt to authenticate the End-User. The means used to do this are outside the scope of the OpenID Connect Core Specification and will vary by implementation, but typically this will be done by loading a page in the End-User's user agent requesting the user to provide their credentials e.g. username and password and possibly a second factor like a One Time Password.
 
-Once the End-User is authenticated the OpenID Provider must obtain an authorization decision before releasing information to the Relying Party. This or be done through an interactive dialogue with the End-User that makes it clear what is being consented to or by other means (for example, via previous administrative consent).
+Once the End-User is authenticated the OpenID Provider must obtain an authorization decision before releasing information to the Relying Party. This may be done through an interactive dialogue with the End-User that makes it clear what is being consented to or by other means (for example, via previous administrative consent).
 
 The diagram below depicts example screen screens that might be implemented by an OpenID Provider:
 
@@ -106,7 +109,7 @@ Full details of these parameters can be found in the [OpenID Connect Core Specif
 
 ### Authentication Successful Response
 
-If the End-User is successfully authenticated and authorizes access to the data requested the OpenID Provider will return an authorisation code to the Relying Party. This is achieved by returning a HTTP 302 redirect request to the user agent requesting that the response is redirected to the URI specified by the Relying Party in the redirection_uri parameter of the authorize request.
+If the End-User is successfully authenticated and authorizes access to the data requested the OpenID Provider will return an authorisation code to the Relying Party's server component. This is achieved by returning a HTTP 302 redirect request to the End User's user agent requesting that the response is redirected to the redirection_uri specified in the authorize request.
 
 An example response is given below:
 
@@ -121,15 +124,15 @@ The response will contain a code parameter and optionally a state parameter.
 
 The code parameter holds the authorization code which is a string value. Some OpenID Provider implementations may encode state about the id token to be returned in the authorization code value, whilst others may use the authorization code value as an index into a data sore holding this state. In either case the content of authorization code is opaque to the Relying Party.
 
-The state parameter will be returned if a value was provided by the Relying Party in the authorize request. The Relying Party should validate that the value returned matches that supplied. The state value can additionally be used to mitigate against XSRF attacks by cryptographically binding the value of this parameter with a browser cookie (for more details see the [OAuth 2.0 Authorization Framework Specification] https://tools.ietf.org/html/rfc6749#section-10.12).
+The state parameter will be returned if a value was provided by the Relying Party in the authorize request. The Relying Party should validate that the value returned matches that supplied. The state value can additionally be used to mitigate against XSRF attacks by cryptographically binding the value of this parameter with a browser cookie (for more details see the [OAuth 2.0 Authorization Framework Specification](https://tools.ietf.org/html/rfc6749#section-10.12)).
 
 ### Authentication Error Response
 
-If the End-User denies the request or the authentication fails the OpenID Provider will return an error response to the Relying Party. As for a successful response this is achieved by returning a HTTP 302 redirect request to the user agent requesting that the response is redirected to the specified redirection URI.
+If the End-User denies the request or the authentication fails the OpenID Provider will return an error response to the Relying Party. As for a successful response this is achieved by returning a HTTP 302 redirect request to the End User's user agent requesting that the response is redirected to the redirection_uri specified in the authorize request.
 
 If the redirection URI specified is invalid an error will be returned directly to the user agent.
 
-HTTP errors unrelated to OpenID Connect are returned to the user agent using the appropriate HTTP status code.
+HTTP errors unrelated to OpenID Connect will be returned to the user agent using the appropriate HTTP status code.
 
 An example error response is given below:
 
@@ -141,11 +144,9 @@ An example error response is given below:
     &state=af0ifjsldkj
 ```
 
-The response will contain an error parameter and optionally error_description, error_uri and state parameters.
+The response will contain an error parameter and optionally error_description, error_uri and state parameters. The error_uri parameter may be used by implementations to specify a human-readable web page with information about the error, used to provide the client developer with additional information about the error.
 
 Standard error values are defined in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#AuthRequestValidation). Implementations may also define their own errors.
-
-The error_uri parameter may be used by implementations to specify a human-readable web page with information about the error, used to provide the client developer with additional information about the error.
 
 ## Token Request
 
@@ -185,7 +186,7 @@ The authentication mechanisms available will depend on the implementation but th
 |private_key_jwt|Authentication using a JWT signed with a public key registered to the Relying Party. The JWT must be sent as the value of a client_assertion parameter with a client_assertion_type parameter set to urn:ietf:params:oauth:client-assertion-type:jwt-bearer.|
 |none|No authentication performed.|
 
-The example below shows the use of a signed JWT to authenticate (the JWT value has been abbreviated).
+The example below shows the use of a signed JWT to authenticate (in the example JWT value has been abbreviated).
 
 ```
 POST /token HTTP/1.1
@@ -195,13 +196,23 @@ POST /token HTTP/1.1
   grant_type=authorization_code&
   code=i1WsRn1uB1&
   client_id=s6BhdRkqt3&
-  client_assertion_type=
-  urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
-  client_assertion=PHNhbWxwOl ... ZT
+  client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
+  client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6IjE2In0.a ... b.c ... d
 ```
+
+The client assertion JWT is comprised of three Base64URL encoded elements separated by a . character. The first element is the token header. If we decode the value from the example above we get the string below: 
+
+```
+{"alg":"ES256","kid":"16"}
+```
+
+This specifies that the token has been signed with ECDSA utilising a P-256 curve and SHA-256 hash algorithm using the key identified by the string "16". Details on how the Relying Party may obtain the public key associated with kid are given in the [Key Management](explore_other_features#key_management) section in the the Other OpenID Connect Features page.
+
+Decoding the second element would give the JSON object containing the claims about the Relying Party e.g. the client identifier, expiration date etc.
+
 Full details on client authentication can be found in the [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#ClientAuthentication). 
  
-### Request Validation
+### Token Request Validation
 
 On receiving the request the OpenID Provider will authenticate the Relying Party, validate that the parameters provided in the token request are consistent with those in the authentication request and check that the authorisation code was issued to the authenticated Relying Party. 
 
@@ -211,7 +222,7 @@ The OpenID Provider may also perform additional security checks, validating that
 
 If the request validation is successful the OpenID Provider will return an HTTP 200 OK response including id, access and refresh tokens as in the example below:
 
-Headers
+*Headers*
 
 ```
 Header Name	Header Value
@@ -219,7 +230,7 @@ Cache-Control	no-store
 Pragma	no-cache
 ```
 
-Body
+*Body*
 
 ```
   HTTP/1.1 200 OK
@@ -255,11 +266,13 @@ The response body will include the following parameters:
 |expires_in|The lifetime in seconds of the access token.|
 |id_token|The Base64URL encoded id token.|
 
-The id token is comprises of three Base64URL encoded elements separated by a . character. The first element is the id token header. If we decode the value from the example above we get the string below that specifies that the token has been signed with an RSA Signature with SHA-256 using the key identified by the string "1e9gdk7".
+The id token is comprised of three Base64URL encoded elements separated by a . character. The first element is the id token header. If we decode the value from the example above we get the string below: 
 
 ```
 {"alg":"RS256","kid":"1e9gdk7"}
 ```
+
+This specifies that the token has been signed with an RSA Signature utilising the SHA-256 hashing algorithm and the key identified by the string "1e9gdk7". Details on how the Relying Party may obtain the public key associated with kid are given in the [Key Management](explore_other_features#key_management) section in the the Other OpenID Connect Features page.
 
 Decoding the second element gives us the JSON object containing the claims about the user. For example decoding the value from the example above gives:
 
@@ -281,8 +294,8 @@ The third element is the signature over the JSON object. Details on how this sig
 The [OpenID Connect Core Specification](http://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation) specifies the validation the Relying Party should perform on the id token. This includes but is not limited to the the following:
 
 1. The issuer identifier for the OpenID Provider must exactly match the value of the iss claim.
-2. The aud claim contains the client id value of the Relying Party.
-3. The OpenID Provider should be authenticated. The Relying Party may choose to do this by relying on TLS server validation or by checking the token signature.
+2. The aud claim must contain the client id value of the Relying Party.
+3. The OpenID Provider must be authenticated. The Relying Party may choose to do this by relying on TLS server validation or by checking the token signature.
 4. The current time must be before the time represented by the exp claim.
 
 #### Access Token Validation
@@ -303,11 +316,9 @@ If the Token Request is invalid or unauthorized an HTTP 400 response will be ret
    "error": "invalid_request"
   }
 ```
-The response will contain an error parameter and optionally error_description and error_uri parameters.
+The response will contain an error parameter and optionally error_description and error_uri parameters. The error_uri parameter may be used by implementations to specify a human-readable web page with information about the error, used to provide the client developer with additional information about the error.
 
 Standard error values are defined in the [OAuth 2.0 Authorization Framework Specification](https://tools.ietf.org/html/rfc6749#section-5.2). Implementations may also define their own errors.
-
-The error_uri parameter may be used by implementations to specify a human-readable web page with information about the error, used to provide the client developer with additional information about the error.
 
 ## UserInfo Request
 
@@ -346,7 +357,7 @@ The sub claim will always be included in the response and this should be verifie
 
 For privacy reasons OpenID Providers may elect to not return values for some requested Claims. In that case the claim will be omitted from the JSON object rather than being present with a null or empty string value.
 
-During registration the Relying Party may request that the userinfo response is signed or encrypted in which the claims will be returned in a JWT and the content type will be set to application/jwt. If signed the userinfo Response will contain the iss and aud claims. The Relying Party should validate that the iss value matches OpenID provider's issuer identifier and the aud value contains the Relying Party client id.
+During registration the Relying Party may request that the userinfo response is signed or encrypted in which the claims will be returned in a JWT and the content type will be set to application/jwt. If signed the userinfo Response will contain the iss and aud claims. The Relying Party should validate that the iss value matches OpenID provider's issuer identifier and the aud value contains the Relying Party client id and should
 
 The Relying Party should authenticate the OpenID Provider either by checking the TLS certificate or by validating the signature of the JWT if provided.
 
