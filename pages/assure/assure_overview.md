@@ -7,6 +7,8 @@ permalink: assure_overview.html
 summary: An overview of the technical assurance process and tools.
 ---
 
+{% include important.html content="Work in Progress." %}
+
 ## Integration Testing
 
 Details of the integration testing tools.

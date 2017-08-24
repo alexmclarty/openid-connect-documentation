@@ -8,6 +8,8 @@ permalink: communications_overview.html
 summary: "An overview of the communication channels used by the team."
 ---
 
+{% include important.html content="Work in Progress." %}
+
 ## Enquires
 
 For general enquires please send an email to the [Team Inbox](mailto://dummy@nhs.net).

@@ -8,9 +8,9 @@ toc: true
 summary: A brief introduction to getting started.
 ---
 
-{% include important.html content="Example important block." %}
+{% include important.html content="Work in Progress." %}
 
-{% include warning.html content="Example warning block." %}
+{% include warning.html content="Work in Progress." %}
 
 # Level 1 Heading #
 

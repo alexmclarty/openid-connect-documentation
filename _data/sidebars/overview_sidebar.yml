@@ -12,9 +12,6 @@ entries:
       url: /index.html
       output: web, pdf
       type: homepage
-    - title: Workshops
-      url: /overview_workshops.html
-      output: web
     - title: Glossary
       url: /overview_glossary.html
       output: web
@@ -33,6 +30,9 @@ entries:
       output: web
     - title: Other OpenID Connect Features
       url: /explore_other_features.html
+      output: web
+    - title: Spine Implementation
+      url: /explore_spine_implementation.html
       output: web
 
   - title: Develop

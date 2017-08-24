@@ -8,6 +8,8 @@ summary: "Glossary of terms"
 toc: false
 ---
 
+{% include important.html content="Work in Progress." %}
+
 Glossary of common terms and abbreviations used though-out the documentation.
 
 First of Type
