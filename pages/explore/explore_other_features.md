@@ -13,6 +13,73 @@ The previous pages introduced the high level concepts of the OpenID Connect Core
 
 The purpose of this page is to give an overview of some of the wider set of OpenID Connect specifications (the full set of which can be found [here](http://openid.net/connect/)).  
 
+## Dynamic Registration
+
+In order to use the services offered by an OpenID Provider a Relying Party must register with the provider. During this step a client identifier will be assigned to the Relying Party and metadata about its configuration recorded.
+
+This may be done manually but OpenID Connect contains a specification ([OpenID Connect Dynamic Client Registration 1.0](http://openid.net/specs/openid-connect-registration-1_0.html)) that allows this to be electronically.
+
+OpenID Providers that support this specification provide a client registration endpoint. A client requests registration by sending a HTTP POST request as in the example below. The OpenID Provider may require an initial access token that is provisioned out-of-band (as shown in the example) to restrict registration requests to only authorized clients or developers.
+
+```
+POST /connect/register HTTP/1.1
+  Content-Type: application/json
+  Accept: application/json
+  Host: server.example.com
+  Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ ...
+
+  {
+   "application_type": "web",
+   "redirect_uris":
+     ["https://client.example.org/callback",
+      "https://client.example.org/callback2"],
+   "client_name": "My Example",
+   "logo_uri": "https://client.example.org/logo.png",
+   "token_endpoint_auth_method": "client_secret_basic",
+   "jwks_uri": "https://client.example.org/my_public_keys.jwks",
+   "userinfo_encrypted_response_alg": "RSA1_5",
+   "userinfo_encrypted_response_enc": "A128CBC-HS256",
+   "contacts": ["ve7jtb@example.org", "mary@example.org"],
+  }
+```
+
+The OpenID Provider will assign the Relying Party a unique client identifier, optionally assign a client secret, and associate the metadata provided with the issued client identifier. The OpenID Provider may provision default values for any items omitted in the client metadata.
+
+A HTTP 201 Created response will be returned to the Relying Party as in the example below:
+
+```
+HTTP/1.1 201 Created
+  Content-Type: application/json
+  Cache-Control: no-store
+  Pragma: no-cache
+
+  {
+   "client_id": "s6BhdRkqt3",
+   "client_secret":
+     "ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk",
+   "client_secret_expires_at": 1577858400,
+   "registration_access_token":
+     "this.is.an.access.token.value.ffx83",
+   "registration_client_uri":
+     "https://server.example.com/connect/register?client_id=s6BhdRkqt3",
+   "token_endpoint_auth_method":
+     "client_secret_basic",
+   "application_type": "web",
+   "redirect_uris":
+     ["https://client.example.org/callback",
+      "https://client.example.org/callback2"],
+   "client_name": "My Example",
+   "jwks_uri": "https://client.example.org/my_public_keys.jwks",
+   "userinfo_encrypted_response_alg": "RSA1_5",
+   "userinfo_encrypted_response_enc": "A128CBC-HS256",
+   "contacts": ["ve7jtb@example.org", "mary@example.org"],
+  }
+```
+
+The response will include the newly-created client identifier and, if applicable, a Client Secret, along with all registered metadata about this Client, including any fields provisioned by the OpenID Provider itself.
+
+Full details of the metadata that can be registered can be found in the [OpenID Connect Dynamic Client Registration 1.0 Specification](http://openid.net/specs/openid-connect-registration-1_0.html) together with details of how an OpenID Provider may optionally provide a  client configuration endpoint allowing a Relying Party to view and update its registered metadata.
+
 ## Discovery
 
 In order to be able to interact with an OpenID Provider to authenticate an End-User a Relying Party needs to know how to contact the provider and the features that it supports.
@@ -95,73 +162,6 @@ HTTP/1.1 200 OK
 The full set of OpenID Provider metadata can be found in the [OpenID Connect Discovery Specification](http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata).
 
 Note that an OpenID Provider may support a well-known openid-configuration page even if they do not support discovery by a WebFinger server.
-
-## Dynamic Registration
-
-In order to use the services offered by an OpenID Provider a Relying Party must register with the provider. During this step a client identifier will be assigned to the Relying Party and metadata about its configuration recorded.
-
-This may be done manually but OpenID Connect contains a specification ([OpenID Connect Dynamic Client Registration 1.0](http://openid.net/specs/openid-connect-registration-1_0.html)) that allows this to be electronically.
-
-OpenID Providers that support this specification provide a client registration endpoint. A client requests registration by sending a HTTP POST request as in the example below. The OpenID Provider may require an initial access token that is provisioned out-of-band (as shown in the example) to restrict registration requests to only authorized clients or developers.
-
-```
-POST /connect/register HTTP/1.1
-  Content-Type: application/json
-  Accept: application/json
-  Host: server.example.com
-  Authorization: Bearer eyJhbGciOiJSUzI1NiJ9.eyJ ...
-
-  {
-   "application_type": "web",
-   "redirect_uris":
-     ["https://client.example.org/callback",
-      "https://client.example.org/callback2"],
-   "client_name": "My Example",
-   "logo_uri": "https://client.example.org/logo.png",
-   "token_endpoint_auth_method": "client_secret_basic",
-   "jwks_uri": "https://client.example.org/my_public_keys.jwks",
-   "userinfo_encrypted_response_alg": "RSA1_5",
-   "userinfo_encrypted_response_enc": "A128CBC-HS256",
-   "contacts": ["ve7jtb@example.org", "mary@example.org"],
-  }
-```
-
-The OpenID Provider will assign the Relying Party a unique client identifier, optionally assign a client secret, and associate the metadata provided with the issued client identifier. The OpenID Provider may provision default values for any items omitted in the client metadata.
-
-A HTTP 201 Created response will be returned to the Relying Party as in the example below:
-
-```
-HTTP/1.1 201 Created
-  Content-Type: application/json
-  Cache-Control: no-store
-  Pragma: no-cache
-
-  {
-   "client_id": "s6BhdRkqt3",
-   "client_secret":
-     "ZJYCqe3GGRvdrudKyZS0XhGv_Z45DuKhCUk0gBR1vZk",
-   "client_secret_expires_at": 1577858400,
-   "registration_access_token":
-     "this.is.an.access.token.value.ffx83",
-   "registration_client_uri":
-     "https://server.example.com/connect/register?client_id=s6BhdRkqt3",
-   "token_endpoint_auth_method":
-     "client_secret_basic",
-   "application_type": "web",
-   "redirect_uris":
-     ["https://client.example.org/callback",
-      "https://client.example.org/callback2"],
-   "client_name": "My Example",
-   "jwks_uri": "https://client.example.org/my_public_keys.jwks",
-   "userinfo_encrypted_response_alg": "RSA1_5",
-   "userinfo_encrypted_response_enc": "A128CBC-HS256",
-   "contacts": ["ve7jtb@example.org", "mary@example.org"],
-  }
-```
-
-The response will include the newly-created client identifier and, if applicable, a Client Secret, along with all registered metadata about this Client, including any fields provisioned by the OpenID Provider itself.
-
-Full details of the metadata that can be registered can be found in the [OpenID Connect Dynamic Client Registration 1.0 Specification](http://openid.net/specs/openid-connect-registration-1_0.html) together with details of how an OpenID Provider may optionally provide a  client configuration endpoint allowing a Relying Party to view and update its registered metadata.
 
 ## Key Management
 

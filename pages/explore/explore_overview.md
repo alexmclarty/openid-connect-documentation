@@ -7,7 +7,7 @@ permalink: explore_overview.html
 summary: An overview of the documentation available to explore OpenID Connect.
 ---
 
-{% include important.html content="Work in Progress." %}
+{% include warning.html content="Work in Progress." %}
 
 [An Introduction to OpenID Connect](explore_intro_to_oidc)
 
