@@ -22,7 +22,7 @@ This flow requires that a Relying Party can securely maintain a client secret be
 
 The diagram below depicts at a a high level the Authorization Code Flow.
 
-![Authorization Code Flow](/images/OIDCAuthCodeFlow.jpg)
+![Authorization Code Flow](images/OIDCAuthCodeFlow.jpg)
 
 1. The Relying Party sends a request to the OpenID Provider to authenticate the End-User. The request must include the Relying Party's identity and the openid scope, it may optionally include other scopes e.g. the email scope if the Relying Party wishes to obtain the user's email address.
 2. The OpenID Provider authenticates the End-User using one of the methods available to it and obtains authorization from the End-user to provide the requested scopes to the identified Relying Party.
@@ -91,7 +91,7 @@ Once the End-User is authenticated the OpenID Provider must obtain an authorizat
 
 The diagram below depicts example screen screens that might be implemented by an OpenID Provider:
 
-![Authentication and Authorization Screens](/images/OIDCLoginScreens.jpg)
+![Authentication and Authorization Screens](images/OIDCLoginScreens.jpg)
 
 The manner in which the authentication and authorization are performed can be controlled to some degree by optional parameters in the authentication request as follows:
 

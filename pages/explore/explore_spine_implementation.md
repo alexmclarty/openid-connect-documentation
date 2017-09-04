@@ -21,7 +21,7 @@ This Alpha implementation is described in more detail in the following sections:
 
 The diagram below depicts at a a high level the components involved Authorization Code Flow.
 
-![Spine OpenID Connect Implementation](/images/OIDCSpineImplementation.jpg)
+![Spine OpenID Connect Implementation](images/OIDCSpineImplementation.jpg)
 
 ### Components
 
@@ -61,17 +61,17 @@ This solution supports both online and offline authentication as described below
 
 Online authentication is provided using an Authorization Code Flow as depicted below and described in detail [here](explore_auth_code_flow).
 
-![Authorization Code Flow](/images/OIDCAuthCodeFlow.jpg)
+![Authorization Code Flow](images/OIDCAuthCodeFlow.jpg)
 
 As shown above to initiate an authentication the third party application needs to make an OpenId Connect authentication request to the authorization endpoint. This would typically be done by causing the End-User's browser to perform an HTTP GET request. However in this instance both the third party application and Identity Agent Bridge are native applications so the communication is achieved using the Windows Custom URI Scheme. This requires that the Identity Agent Bridge registers a custom URI to receive authentication requests and that the third party application registers a custom URI to receive the response.
 
 When the third party directs an authentication request at the authorize endpoint the Identity Agent Bridge will interact with the Identity Agent to determine whether the End-User has already authenticated. If they haven't this will start the authentication process by displaying a pop-up window requesting the user to enter their smartcard and enter their passcode.
 
-![Spine Login](/images/OIDCSpineLogin.jpg)
+![Spine Login](images/OIDCSpineLogin.jpg)
 
 If the user correctly enters their passcode they will then be requested to select a role from those available to them.
 
-![Spine Role Selection](/images/OIDCSpineRoleSelection.jpg)
+![Spine Role Selection](images/OIDCSpineRoleSelection.jpg)
 
 If the End-User was already authenticated or was newly authenticated the Identity Agent Bridge will interact with the OpenID Connect Server which in turn will interact with the Spine Authentication Server to generate an authorization code. This authorization code will be returned to the third party application by directing an OpenID Connect authentication response to the third party's custom URI. If they authentication fails then an OpenID Connect error response will be returned to the custom URI.
 
