@@ -9,14 +9,8 @@ summary: An overview of the development tools / code examples available to help 
 
 {% include important.html content="Work in Progress." %}
 
-## System Design ##
+[Introduction to NHS Digital's Implentation](develop_intro_to_nhs_impl)
 
-Overview of any design-time resources that are available.
+[Implementation Detail](develop_nhs_impl)
 
-## System Implementation ##
 
-Overview of any implementation resources that are available.
-
-## System Test ##
-
-Overview of any testing resources that are available.

@@ -1,5 +1,5 @@
 ---
-title: Other OpenID Connect Features
+title: Other Features
 keywords: explore, design, reference
 tags: [design,explore]
 sidebar: overview_sidebar

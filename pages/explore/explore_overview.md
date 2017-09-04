@@ -15,4 +15,4 @@ summary: An overview of the documentation available to explore OpenID Connect.
 
 [Other OpenID Connect Features](explore_other_features)
 
-[Spine OpenID Connect Implementation](explore_spine_implementation)
+[NHS Digital Implementation](explore_spine_implementation)

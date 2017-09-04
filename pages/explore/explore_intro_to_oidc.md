@@ -1,5 +1,5 @@
 ---
-title: An Introduction to OpenID Connect
+title: An Overview of OpenID Connect
 keywords: explore, design, reference
 tags: [design,explore]
 sidebar: overview_sidebar
