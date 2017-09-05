@@ -22,7 +22,7 @@ Before using the NHS Digital implementation of OpenID Connect a third party will
 |client_id|An identifier for the third party application which will be allocated by NHS Digital e.g. abc123.|
 |client_name|A name for the third party application.|
 |redirect_uris|The URI(s) to which the third party application may request authorization codes to be redirected. As noted above these will be custom URIs e.g. clientapp://connect/authresponse|
-|jwks_uri|The URI which the third party will us as a JWKS endpoint ([see key management](explore_other_features#key_management)) e.g. https://client.example.org/.well-known/jwks.json.|
+|jwks_uri|The URI which the third party will us as a JWKS endpoint ([see Key Management](explore_other_features#key_management)) e.g. https://client.example.org/.well-known/jwks.json.|
 
 ## Discovery
 
@@ -66,7 +66,7 @@ Things to note are:
 
 ### NHS Digital Keys
 
-The NHS Digital solution provids a JWKS endpoint ([see key management](explore_other_features#key_management)). The value taken from the JSON document above is:
+The NHS Digital solution provids a JWKS endpoint ([see Key Management](explore_other_features#key_management)). The value taken from the JSON document above is:
 
 ```
 https://connect.iam.spine2.ncrs.nhs.uk/.well-known/jwks.json
@@ -101,7 +101,7 @@ To avoid having to read the JWKS endpoint every time a signature is checked supp
 
 ### Third Party Keys
 
-When submitting a token request to the NHS Digtal token endpoint third party applications are required to authenticate themselves ([see client authentication](explore_auth_code_flow#client-authentication)). 
+When submitting a token request to the NHS Digtal token endpoint third party applications are required to authenticate themselves ([see Client Authentication](explore_auth_code_flow#client-authentication)). 
 
 The NHS Digital implementation requires that this is done using the private_key_jwt method using the RSA256 algorithm. To support this mechanism the third party must generate its own RSA key pairs and publish the public key via a JWKS endpoint in the same fashion as described for the NHS Digital public keys above.
 
@@ -132,17 +132,17 @@ An example response from the NHS Digital implementation is given below:
 
 ```
 code=eyJraWQiOiJyRi1Ebzh4aGFqTC1iZnJDMEVmMERwcXZ3Yko5VVV6VWJFRlF3bDQycnc0IiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYif
-     Q.eyJpdiI6IlRXMTljcEdYbGlLWDJXV01ObElHZjc1ZE5rTzBpbFBTOGthOUNkLUVublE9Iiwic3ViIjoidWlkPTI0MDAwMDEwOTg5Nix
-     vdT1QZW9wbGUsbz1uaHMiLCJzc29fdGlja2V0IjoiY2FIbjNLaTRBdVVySEQ4TWdkUFBMbk1iRUtDOGRfeHZEVnZXX3FjR2hvZHJqR29z
-     bFRSaThDVjdEb1FsS3dYY1hzeUpUekFaWG02RkN0STE5OEk9IiwiaXNzIjoiaHR0cHM6Ly9jb25uZWN0LmlhbS5zcGluZTIubmNycy5ua
-     HMudWsvYXV0aG9yaXplIiwianRpIjoiYmRhYjk1NzI0NDUwNDEyZjhiMTUwMzNhNzg1ZjI3YmEiLCJhenAiOiJzNkJoZFJrcXQzIiwiaW
-     F0IjoxNTA0NjAyNTc4LCJhbXIiOlsicGluIiwibGVnYWN5X3NpZ25lZF9jaGFsbGVuZ2UiXSwiYXVkIjoiaHR0cHM6Ly9jb25uZWN0Lml
-     hbS5zcGluZTIubmNycy5uaHMudWsvdG9rZW4iLCJyb2xlX2lkIjoiMjQwMDAwMTE1ODk0IiwiZGV2aWNlX2lkIjoiQU11dmM3SDlUbHJp
-     Q24xUndqejVqV1VBVnZBcWh5bUoiLCJleHAiOjE1MDQ2MDI2MDgsInRhZyI6IjR1SUtrSDh3S1diUkwwb0F3REZyb0E9PSJ9.vo3Gqz-g
-     QIKYvqIzBaiJepTVPfD74vlkxgQSvq3KmHEMx5IMUn0qZ7MOFwbfv8S1AVX1tTCSbOUpKSD2Y1Zxdo89Lr5WCI4dSAR8ACazZILY89Ra5
-     xQXr6yGjPXfCyg_Nqt9HYt1aFWCFt4QmeLNBxQgv1wCLEVFdKIagEl3THNK_Nlq9PESngi_RId8xZjXedpjjXsf2Vf4BtweJEbFFIoW0X
-     S1h91tGTQ0YTIBwgFg_VAQh-0NNeDDKtwA7dcGxV2orqq9pv6MoCa_9i2R_QYgs19I02Y15Ggd3_TifCqi2FKtshbZJFB5Zm6vYg4a21p
-     kuus_s5ZTsFxbo7b0aA&
+ Q.eyJpdiI6IlRXMTljcEdYbGlLWDJXV01ObElHZjc1ZE5rTzBpbFBTOGthOUNkLUVublE9Iiwic3ViIjoidWlkPTI0MDAwMDEwOTg5Nix
+ vdT1QZW9wbGUsbz1uaHMiLCJzc29fdGlja2V0IjoiY2FIbjNLaTRBdVVySEQ4TWdkUFBMbk1iRUtDOGRfeHZEVnZXX3FjR2hvZHJqR29z
+ bFRSaThDVjdEb1FsS3dYY1hzeUpUekFaWG02RkN0STE5OEk9IiwiaXNzIjoiaHR0cHM6Ly9jb25uZWN0LmlhbS5zcGluZTIubmNycy5ua
+ HMudWsvYXV0aG9yaXplIiwianRpIjoiYmRhYjk1NzI0NDUwNDEyZjhiMTUwMzNhNzg1ZjI3YmEiLCJhenAiOiJzNkJoZFJrcXQzIiwiaW
+ F0IjoxNTA0NjAyNTc4LCJhbXIiOlsicGluIiwibGVnYWN5X3NpZ25lZF9jaGFsbGVuZ2UiXSwiYXVkIjoiaHR0cHM6Ly9jb25uZWN0Lml
+ hbS5zcGluZTIubmNycy5uaHMudWsvdG9rZW4iLCJyb2xlX2lkIjoiMjQwMDAwMTE1ODk0IiwiZGV2aWNlX2lkIjoiQU11dmM3SDlUbHJp
+ Q24xUndqejVqV1VBVnZBcWh5bUoiLCJleHAiOjE1MDQ2MDI2MDgsInRhZyI6IjR1SUtrSDh3S1diUkwwb0F3REZyb0E9PSJ9.vo3Gqz-g
+ QIKYvqIzBaiJepTVPfD74vlkxgQSvq3KmHEMx5IMUn0qZ7MOFwbfv8S1AVX1tTCSbOUpKSD2Y1Zxdo89Lr5WCI4dSAR8ACazZILY89Ra5
+ xQXr6yGjPXfCyg_Nqt9HYt1aFWCFt4QmeLNBxQgv1wCLEVFdKIagEl3THNK_Nlq9PESngi_RId8xZjXedpjjXsf2Vf4BtweJEbFFIoW0X
+ S1h91tGTQ0YTIBwgFg_VAQh-0NNeDDKtwA7dcGxV2orqq9pv6MoCa_9i2R_QYgs19I02Y15Ggd3_TifCqi2FKtshbZJFB5Zm6vYg4a21p
+ kuus_s5ZTsFxbo7b0aA&
 state=af0ifjsldkj
 ```
 
@@ -175,7 +175,7 @@ The token endpoint can be obtained from the configuration data. From the example
 https://connect.iam.spine2.ncrs.nhs.uk/token
 ``` 
 
-An example of a request is given below. The example shows the authorization code being supplied along with the client_id and redirect_uri from the original request, the example the client assertion JWT value has been truncated:
+An example of a request is given below.
 
 ```
 POST /token HTTP/1.1
@@ -184,49 +184,114 @@ POST /token HTTP/1.1
 
   grant_type=authorization_code&
   code=eyJraWQiOiJyRi1Ebzh4aGFqTC1iZnJDMEVmMERwcXZ3Yko5VVV6VWJFRlF3bDQycnc0IiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYif
-       Q.eyJpdiI6IlRXMTljcEdYbGlLWDJXV01ObElHZjc1ZE5rTzBpbFBTOGthOUNkLUVublE9Iiwic3ViIjoidWlkPTI0MDAwMDEwOTg5Nix
-       vdT1QZW9wbGUsbz1uaHMiLCJzc29fdGlja2V0IjoiY2FIbjNLaTRBdVVySEQ4TWdkUFBMbk1iRUtDOGRfeHZEVnZXX3FjR2hvZHJqR29z
-       bFRSaThDVjdEb1FsS3dYY1hzeUpUekFaWG02RkN0STE5OEk9IiwiaXNzIjoiaHR0cHM6Ly9jb25uZWN0LmlhbS5zcGluZTIubmNycy5ua
-       HMudWsvYXV0aG9yaXplIiwianRpIjoiYmRhYjk1NzI0NDUwNDEyZjhiMTUwMzNhNzg1ZjI3YmEiLCJhenAiOiJzNkJoZFJrcXQzIiwiaW
-       F0IjoxNTA0NjAyNTc4LCJhbXIiOlsicGluIiwibGVnYWN5X3NpZ25lZF9jaGFsbGVuZ2UiXSwiYXVkIjoiaHR0cHM6Ly9jb25uZWN0Lml
-       hbS5zcGluZTIubmNycy5uaHMudWsvdG9rZW4iLCJyb2xlX2lkIjoiMjQwMDAwMTE1ODk0IiwiZGV2aWNlX2lkIjoiQU11dmM3SDlUbHJp
-       Q24xUndqejVqV1VBVnZBcWh5bUoiLCJleHAiOjE1MDQ2MDI2MDgsInRhZyI6IjR1SUtrSDh3S1diUkwwb0F3REZyb0E9PSJ9.vo3Gqz-g
-       QIKYvqIzBaiJepTVPfD74vlkxgQSvq3KmHEMx5IMUn0qZ7MOFwbfv8S1AVX1tTCSbOUpKSD2Y1Zxdo89Lr5WCI4dSAR8ACazZILY89Ra5
-       xQXr6yGjPXfCyg_Nqt9HYt1aFWCFt4QmeLNBxQgv1wCLEVFdKIagEl3THNK_Nlq9PESngi_RId8xZjXedpjjXsf2Vf4BtweJEbFFIoW0X
-       S1h91tGTQ0YTIBwgFg_VAQh-0NNeDDKtwA7dcGxV2orqq9pv6MoCa_9i2R_QYgs19I02Y15Ggd3_TifCqi2FKtshbZJFB5Zm6vYg4a21p
-       kuus_s5ZTsFxbo7b0aA&
+   Q.eyJpdiI6IlRXMTljcEdYbGlLWDJXV01ObElHZjc1ZE5rTzBpbFBTOGthOUNkLUVublE9Iiwic3ViIjoidWlkPTI0MDAwMDEwOTg5Nix
+   vdT1QZW9wbGUsbz1uaHMiLCJzc29fdGlja2V0IjoiY2FIbjNLaTRBdVVySEQ4TWdkUFBMbk1iRUtDOGRfeHZEVnZXX3FjR2hvZHJqR29z
+   bFRSaThDVjdEb1FsS3dYY1hzeUpUekFaWG02RkN0STE5OEk9IiwiaXNzIjoiaHR0cHM6Ly9jb25uZWN0LmlhbS5zcGluZTIubmNycy5ua
+   HMudWsvYXV0aG9yaXplIiwianRpIjoiYmRhYjk1NzI0NDUwNDEyZjhiMTUwMzNhNzg1ZjI3YmEiLCJhenAiOiJzNkJoZFJrcXQzIiwiaW
+   F0IjoxNTA0NjAyNTc4LCJhbXIiOlsicGluIiwibGVnYWN5X3NpZ25lZF9jaGFsbGVuZ2UiXSwiYXVkIjoiaHR0cHM6Ly9jb25uZWN0Lml
+   hbS5zcGluZTIubmNycy5uaHMudWsvdG9rZW4iLCJyb2xlX2lkIjoiMjQwMDAwMTE1ODk0IiwiZGV2aWNlX2lkIjoiQU11dmM3SDlUbHJp
+   Q24xUndqejVqV1VBVnZBcWh5bUoiLCJleHAiOjE1MDQ2MDI2MDgsInRhZyI6IjR1SUtrSDh3S1diUkwwb0F3REZyb0E9PSJ9.vo3Gqz-g
+   QIKYvqIzBaiJepTVPfD74vlkxgQSvq3KmHEMx5IMUn0qZ7MOFwbfv8S1AVX1tTCSbOUpKSD2Y1Zxdo89Lr5WCI4dSAR8ACazZILY89Ra5
+   xQXr6yGjPXfCyg_Nqt9HYt1aFWCFt4QmeLNBxQgv1wCLEVFdKIagEl3THNK_Nlq9PESngi_RId8xZjXedpjjXsf2Vf4BtweJEbFFIoW0X
+   S1h91tGTQ0YTIBwgFg_VAQh-0NNeDDKtwA7dcGxV2orqq9pv6MoCa_9i2R_QYgs19I02Y15Ggd3_TifCqi2FKtshbZJFB5Zm6vYg4a21p
+   kuus_s5ZTsFxbo7b0aA&
   redirect_uri=clientapp%3A%2F%2Fconnect%2authresponse&
   client_id=abc123&
   client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
-  client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwMCJ9.a ... b.c ... d
+  client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwMCJ9.ewogICJpc3MiOiAiYWJjMTIzIiwKICAic3ViIjogImFiYzEyMyIs
+   CiAgImF1ZCI6ICJodHRwczovL2Nvbm5lY3QuaWFtLnNwaW5lMi5uY3JzLm5ocy51ay90b2tlbiIsCiAgImlhdCI6I
+   DE1MDQ2MTExMzUsCiAgImV4cCI6IDE1MDQ2MTExNjUsCiAgImp0aSI6ICJqYXNkaDg3amU5cDhyc2RqMjMzOTIzOD
+   k4MjMiCn0. ...
 ```
+The example shows that the request contains the client_id and redirect_uri from the original authentication request and the authorization code returned in response (for brevity the client assertion JWT value has been truncated).
 
 ### Client Authentication
 
 The NHS Digital implementation requires that the client authenticates using the private_key_jwt method using the RSA256 algorithm. 
 
-To support this mechanism the third party must generate its own RSA key pairs and publish the public key via a JWKS endpoint in the same fashion as described for the NHS Digital public keys above.
+To achieve this the third party must include client_id, client_assertion_type and client_assertion parameters in the token request.
+
+* The client_id parameter should be set to the value allocated to the the third party during registration and must match that in the authentication request e.g. abc123. 
+* The client_assertion parameter must be set to the value urn:ietf:params:oauth:client-assertion-type:jwt-bearer. 
+* The client_assertion parameter must contain a client assertion JWT signed with one of the third party's private keys.
+
+The client assertion JWT is comprised of three Base64URL encoded elements separated by a . character. 
+
+#### Header
+
+The first element of the JWT is the token header. If we decode the value from the example above we get the string below:
 
 ```
 {"alg":"RS256","kid":"100"}
 ```
+
+This specifies that the token has been signed with an RSA Signature utilising the SHA-256 hashing algorithm and the key identified by the string “100”. This kid should relate to a key contained in the third party's JWKS returned from the third party's JWKS endpoint (see [Third Party Keys](develop_nhs_impl#third-party-keys)).
+
+#### JSON Object
+
+The second element gives the JSON object containing the claims about the third party application e.g. the client identifier. Decoding the the value from the example above we get the string below:
 
 ```
 {
   "iss": "abc123",
   "sub": "abc123",
   "aud": "https://connect.iam.spine2.ncrs.nhs.uk/token",
-  "iat": 1504611135668,
-  "exp": 1504611165668,
+  "iat": 1504611135,
+  "exp": 1504611165,
   "jti": "jasdh87je9p8rsdj23392389823"
 }
 ```
 
-#### ID Token
+The NHS Digital implementation expects the following claims in the client assertion JSON:
+
+|Name|Description|
+|----|-----------|
+|iss|This must contain the client_id of the third party application e.g. abc123.|
+|sub|This must contain the client_id of the third party application e.g. abc123.|
+|aud|This must contain the URL of the NHS Digital token endpoint e.g. https://connect.iam.spine2.ncrs.nhs.uk/token|
+|iat|This must contain the time at which the JWT was issued represented as the number of seconds from 1970-01-01T0:0:0Z as measured in UTC (the NHS Digital implementation will check that this was in the last 40 seconds).|
+|exp|This must contain the expiration time on or after which the token must not be accepted for processing.|
+|jti|A unique identifier for the token, which can be used to prevent reuse of the token. The NHS Digital implementation will check that this jti value has not been used before.|
+
+#### Signature
+
+The third and final element of the JWT is the signature. The NHS Digital implementation requires that the token is signed with an RSA Signature utilising the SHA-256 hashing algorithm and a key whose public element is made available via the third party's JWKS endpoint.
+
+For further information on the creation of a signed JWT see the [JSON Web Signature Specification](https://tools.ietf.org/html/rfc7515).
+
+### Token Successful Response
+
+This is as described for the Authorization Code Flow previously detailed [here](explore_auth_code_flow#token-successful-response).
+
+#### ID Token Content
+
+An example ID Token as returned from the NHS Digital implementation is given below:
 
 ```
-{"role":"S0080:G0450:R5080","sub":"uid=240000109896,ou=People,o=nhs","iat":1503584477,"iss":"https://connect.iam.spine2.ncrs.nhs.uk/token","aud":"https://connect.iam.spine2.ncrs.nhs.uk/token","jti":"0cca2fe5675f4fe28f687ec5a2dac187","activities":["B0005","B0008"],"exp":1503584507}
-2017-08-24 15:21:12,663 INFO test_get_tokens.py.test__get_tokens() - Refresh Token Decoded: {"iv":"LopflBFmvq3BJRUm5r2v3cGpVE7iEyLN4Qf8YLvXS4o=","role_id":"240000115894","device_id":"AMuvc7H9TlriCn1Rwjz5jWUAVvAqhymJ","sub":"uid=240000109896,ou=People,o=nhs","iat":1503584477,"iss":"https://connect.iam.spine2.ncrs.nhs.uk/token","aud":"https://connect.iam.spine2.ncrs.nhs.uk/token","sso_ticket":"3zkYKhNMgbFwVqAy0aBS8W93epK8k4xsBWP-8sbns0SJmr1z2B5hFJHbe8txQQ2eluxmULLB2ogxHYpZvyQ=","jti":"2617f03c0b44454b93b427c5d77e704d","tag":"dkQryHQjQ1KrYlFDaNz_3Q==","exp":1503620477}
-2017-08-24 15:21:12,663 INFO test_get_tokens.py.test__get_tokens() - ID Token Decoded: {"device_id":"AMuvc7H9TlriCn1Rwjz5jWUAVvAqhymJ","role":{"role_id":"240000115894","name":"\"Admin & Clerical\":\"Management - A & C\":\"Registration Authority Manager\"","code":"S0080:G0450:R5080"},"activities":["B0005","B0008"],"amr":["pin","legacy_signed_challenge"],"jti":"2b44cf3602d445e0909a808ad3194341","name":"Seven User Mr","s_hash":"LLJ6GrrF3GenakaKAyYBTg","at_hash":"gNn8ijUTnwM34MxSFzBgYw","sub":"uid=240000109896,ou=People,o=nhs","org":{"name":"GREATER MANCHESTER STRATEGIC HA","code":"Q14"},"iat":1503584477,"iss":"https://connect.iam.spine2.ncrs.nhs.uk/token","aud":"s6BhdRkqt3","exp":1503620477,"c_hash":"MPZJ1jWGHrGqL-fMHAEBMQ"}
+{
+ "device_id":"AMuvc7H9TlriCn1Rwjz5jWUAVvAqhymJ",
+ "role":{
+   "role_id":"240000115894",
+   "name":"\"Admin & Clerical\":\"Management - A & C\":\"Registration Authority Manager\"",
+   "code":"S0080:G0450:R5080"},
+ "activities":["B0005","B0008"],
+ "amr":["pin","legacy_signed_challenge"],
+ "jti":"2b44cf3602d445e0909a808ad3194341",
+ "name":"Seven User Mr",
+ "s_hash":"LLJ6GrrF3GenakaKAyYBTg",
+ "at_hash":"gNn8ijUTnwM34MxSFzBgYw",
+ "sub":"uid=240000109896,ou=People,o=nhs",
+ "org":{
+   "name":"GREATER MANCHESTER STRATEGIC HA",
+   "code":"Q14"},
+ "iat":1503584477,
+ "iss":"https://connect.iam.spine2.ncrs.nhs.uk/token",
+ "aud":"s6BhdRkqt3",
+ "exp":1503620477,
+ "c_hash":"MPZJ1jWGHrGqL-fMHAEBMQ"
+}
 ```
 
+#### ID Token Validation
+
+### Token Error Response
