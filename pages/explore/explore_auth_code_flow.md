@@ -195,6 +195,7 @@ POST /token HTTP/1.1
 
   grant_type=authorization_code&
   code=i1WsRn1uB1&
+  redirect_uri=https%3A%2F%2Fclient.example.org%2Fcb&
   client_id=s6BhdRkqt3&
   client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
   client_assertion=eyJhbGciOiJFUzI1NiIsImtpZCI6IjE2In0.a ... b.c ... d

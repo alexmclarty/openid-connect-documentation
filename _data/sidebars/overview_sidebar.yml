@@ -35,7 +35,7 @@ entries:
     - title: Overview
       url: /develop_intro_to_nhs_impl.html
       output: web
-    - title: Implementation in Detail
+    - title: Implementation Detail
       url: /develop_nhs_impl.html
       output: web
 
