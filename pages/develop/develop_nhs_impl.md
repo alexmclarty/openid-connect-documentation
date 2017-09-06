@@ -1,13 +1,10 @@
 ---
-title: NHS Digital Implementation in Detail
+title: Online Authentication in Detail
 keywords: explore, design, reference
-tags: [design,explore]
 sidebar: overview_sidebar
 permalink: develop_nhs_impl.html
-summary: A detailed description of the NHS Digital implementation of OpenID Connect.
+summary: A detailed description of the NHS Digital implementation of OpenID Connect for use whilst online.
 ---
-
-{% include warning.html content="Work in Progress." %}
 
 ## Introduction
 
@@ -124,6 +121,8 @@ nhsidentityagent://connect/authorize?
 
 The current Identity Agent Bridge implementation currently only supports the scope, response_type, client_id, redirct_uri and state parameters. The only scope supported is openid.
 
+Submitting an authentication request will initiate the user interaction described in the [High Level Flows](develop_intro_to_nhs_impl#high_level_flows) section of the introductory page.
+
 ### Authentication Successful Response
 
 This is as described for the Authorization Code Flow previously detailed [here](explore_auth_code_flow#authentication-successful-response) with the exception that the response will be returned to the specified redirect_uri via the Windows Custom URI Scheme.
@@ -146,7 +145,7 @@ code=eyJraWQiOiJyRi1Ebzh4aGFqTC1iZnJDMEVmMERwcXZ3Yko5VVV6VWJFRlF3bDQycnc0IiwidHl
 state=af0ifjsldkj
 ```
 
-The NHS Digital implementation currently uses a JWT token with encoded state information as its authorization code. However as per the OpenID Connect specification and to protect against any future changes to its structure third party applications should treat the code as an opaque value.
+The NHS Digital implementation currently uses a JWT token with encoded state information as its authorization code. However to conform to the OpenID Connect specification and to protect against any future changes to its structure third party applications should treat the code as an opaque value.
 
 ### Authentication Error Response
 
@@ -160,8 +159,13 @@ An example response from the NHS Digital implementation is given below:
 error=invalid_request
 &state=af0ifjsldkj
 ```
+The NHS Digital implementation supports the following errors.
 
-{% include warning.html content="Need to check the errors returned." %}
+|Error|
+|-----|
+|invalid_request|
+|access_denied|
+|internal_server_error|
 
 ## Token Request
 
@@ -263,35 +267,108 @@ For further information on the creation of a signed JWT see the [JSON Web Signat
 
 This is as described for the Authorization Code Flow previously detailed [here](explore_auth_code_flow#token-successful-response).
 
-#### ID Token Content
+#### ID Token
 
-An example ID Token as returned from the NHS Digital implementation is given below:
+An example decoded ID Token as returned from the NHS Digital implementation is given below:
 
 ```
 {
- "device_id":"AMuvc7H9TlriCn1Rwjz5jWUAVvAqhymJ",
- "role":{
-   "role_id":"240000115894",
-   "name":"\"Admin & Clerical\":\"Management - A & C\":\"Registration Authority Manager\"",
-   "code":"S0080:G0450:R5080"},
- "activities":["B0005","B0008"],
+ "aud":"abc123",
+ "s_hash":"OKuG1HdMk6FzQaF3WEi-VQ",
+ "c_hash":"opQhesA-we--QHsXuic9TA",
+ "exp":1497992399,
+ "iss":"https://connect.iam.spine2.ncrs.nhs.uk/token",
+ "iat":1497956399,
+ "at_hash":"SjUTS24aWk6lg_i5LGATNQ",
  "amr":["pin","legacy_signed_challenge"],
- "jti":"2b44cf3602d445e0909a808ad3194341",
- "name":"Seven User Mr",
- "s_hash":"LLJ6GrrF3GenakaKAyYBTg",
- "at_hash":"gNn8ijUTnwM34MxSFzBgYw",
+ "device_id":"AMuvc7H9TlriCn1Rwjz5jWUAVvAqhymJ",
+ "jti":"2683c14bbb7a43e3b47f1490fa448075",
+ "name":"Smith John Mr",
  "sub":"uid=240000109896,ou=People,o=nhs",
- "org":{
+ "role": {
+   "name":"\\"Admin and Clerical\\":\\"Admin and Clerical\\":\\"Privacy Officer\\"",
+   "role_id":"240000117896",
+   "code":"S8002:G8003:R0001"},
+ "org": {
    "name":"GREATER MANCHESTER STRATEGIC HA",
    "code":"Q14"},
- "iat":1503584477,
- "iss":"https://connect.iam.spine2.ncrs.nhs.uk/token",
- "aud":"s6BhdRkqt3",
- "exp":1503620477,
- "c_hash":"MPZJ1jWGHrGqL-fMHAEBMQ"
+ "activities": ["B0263","B0264"],
+ "workgroups": [{
+   "name": "Work Group 1",
+   "code": "150210428105"},{
+   "name": "Work Group 2",
+   "code": "150210428106"}]
 }
 ```
 
+The full set of claims that may be returned in the id token are described below. In the descriptions that follow the reader is assumed to be familiar with the Spine Role Based Access Control (RBAC) and the Spine Directory, if not further information can be found in the Spine External Interface Specification (EIS).
+
+|Name|Description|
+|----|-----------|
+|aud|Set to the client_id of the third party requesting the token e.g. abc123.|
+|s_hash|Set to the base64url encoding of the left-most half of the SHA256 hash of the associated SSO Token. It may be ignored by the third party application.|
+|c_hash|Set to the base64url encoding of the left-most half of the SHA256 hash the associated authorisation code value. Third party applications may use this to protect against token substitution attacks by checking the value against the authorization code used in the get token request.|
+|exp|Set to the current date/time (in seconds from 1970-01-01T0:0:0Z as measured in UTC) plus 36,000 seconds. Ten hours represents the length of a standard Spine smartcard session.|
+|iss|Set to the identity of the issuer. For the example configuration given above this would be https://connect.iam.spine2.ncrs.nhs.uk/token|
+|iat|The time of issuance (in seconds from 1970-01-01T0:0:0Z as measured in UTC at the time of issuance).|
+|at_hash|Set to the base64url encoding of the left-most half of the SHA256 hash of the associated access_token value. Third party applications may use this to protect against token substitution attacks.|
+|amr|This defines the authentication mechanism and is currently set to the hard-coded array of values pin and legacy_signed_challenge.|
+|device_id|A unique identifier for the instance of the Identity Agent Bridge through which the authentication request was made. This is set to a random value. It may be ignored by the third party application.|
+|jti|An identifier for the id token. Set to a random value. It may be ignored by the third party application.|
+|name|The authenticated user's name. Set to the user's Common Name (CN) as retrieved from the Spine directory e.g. Smith John Mr.|
+|sub|The authenticated user's identity. Set to the user's Distinguished Name (DN) as retrieved from the directory e.g. uid=240000109896,ou=People,o=nhs.|
+|role|This claim represents the default role selected by the user at the time of authentication. It comprises three elements read from the associated nhsOrgPersonRole object in the directory:|
+||*role_id* - The unique identifier of the nhsOrgPersonRole object.|
+||*code* - The 3-part role code taken from the nhsJobRoleCode attribute e.g. S8002:G8003:R0001.|
+||*name* - The 3-part role name taken from the nhsJobRole attribute e.g. "Admin and Clerical":"Admin and Clerical":"Privacy Officer".|
+|org|This claim represents the organisation to which the user's default role belongs. It comprises two elements read from the associated nhsOrgPerson object in the directory:|
+||*code* - The id of the organisation taken from the nhsIDCode attribute e.g. Q14.|
+||*name* - The name of the organisation taken from the o attribute e.g. GREATER MANCHESTER STRATEGIC HA.|
+|activities|This claim is an array of activity codes associated with the default role taken from the nhsBusinessFunctionsCodes multi-valued attribute of the nhsOrgPersonRole object e.g. B0263,B0264.|
+|workgroups|This claim is an array of workgroups to which the user's default role has been assigned. Each value comprises two elements taken from the associated nhsOrgPersonRole object in the directory:|
+||*code* - The ID of the workgroup taken from the multi-valued nhsWorkGroupsCodes attribute.|
+||*name* - The name of the workgroup taken from the multi-valued nhsWorkGroups attribute.|
+
+{% include warning.html content="In the current implementation the nth workgroups code is not guaranteed to correspond to the nth workgroup name. This may be remedied in future or the workgroups element may me split into two separate elements." %}
+
 #### ID Token Validation
 
+The third party application should validate the id token as described for the Authorization Code Flow previously detailed [here](explore_auth_code_flow#id-token-validation).
+
+To authenticate the source of the id token the third party application should check the signature of the JWT using the algorithm and key identifier specified in the JWT header. For the NHS Digital implementation the RSA256 algorithm will have been specified and the kid will identify a key in the NHS Digital JWKS as described in the [NHS Digital Keys](develop_nhs_impl#nhs-digital-keys section].
+
+#### Access Token
+
+A successful token response will include an access token but as the current NHS Digital implementation does not support a userinfo endpoint this may be ignored by third party applications. 
+
+#### Refresh Token
+
+A successful token response will include a refresh token but as the current NHS Digital implementation does not support a userinfo endpoint this may be ignored by third party applications. 
+
 ### Token Error Response
+
+This is as described for the Authorization Code Flow previously detailed [here](explore_auth_code_flow#token-error-response).
+
+The NHS Digital implementation only supports the error, an error_description parameter will not be provided.
+
+An example response from the NHS Digital implementation is given below:
+
+```
+HTTP/1.1 400 Bad Request
+  Content-Type: application/json
+  Cache-Control: no-store
+  Pragma: no-cache
+
+  {
+   "error": "invalid_request"
+  }
+```
+
+The NHS Digital implementation supports the follwoing HTTP response and error combinations.
+
+|HTTP Response|Error|
+|-------------|-----|
+|400|invalid_request|
+|400|invalid_grant|
+|401|invalid_client|
+|500|internal_server_error|

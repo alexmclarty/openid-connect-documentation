@@ -1,7 +1,6 @@
 ---
 title: Other Features
 keywords: explore, design, reference
-tags: [design,explore]
 sidebar: overview_sidebar
 permalink: explore_other_features.html
 summary: An overview of other features of the OpenID Connect specifications.

@@ -1,7 +1,6 @@
 ---
 title: An Overview of the NHS Digital Implementation
 keywords: explore, design, reference
-tags: [design,explore]
 sidebar: overview_sidebar
 permalink: develop_intro_to_nhs_impl.html
 summary: An introduction to the NHS Digital implementation of OpenID Connect.

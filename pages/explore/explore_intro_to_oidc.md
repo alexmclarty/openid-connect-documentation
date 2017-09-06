@@ -1,7 +1,6 @@
 ---
 title: An Overview of OpenID Connect
 keywords: explore, design, reference
-tags: [design,explore]
 sidebar: overview_sidebar
 permalink: explore_intro_to_oidc.html
 summary: An introduction to the main concepts of OpenID Connect.
