@@ -38,3 +38,6 @@ entries:
     - title: Online Authentication in Detail
       url: /develop_nhs_impl.html
       output: web
+    - title: Offline Authentication in Detail
+      url: /develop_nhs_offline_impl.html
+      output: web

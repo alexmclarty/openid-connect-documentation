@@ -8,7 +8,7 @@ summary: A detailed description of the NHS Digital implementation of OpenID Conn
 
 ## Introduction
 
-This section provides more detailed information on the use of the NHS Digital implementation of OpenID Connect.
+This section provides more detailed information on the use of the NHS Digital implementation of OpenID Connect whilst the user's laptop is connected to N3.
 
 ## Registration
 
@@ -202,10 +202,10 @@ POST /token HTTP/1.1
   redirect_uri=clientapp%3A%2F%2Fconnect%2authresponse&
   client_id=abc123&
   client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer&
-  client_assertion=eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwMCJ9.ewogICJpc3MiOiAiYWJjMTIzIiwKICAic3ViIjogImFiYzEyMyIs
-   CiAgImF1ZCI6ICJodHRwczovL2Nvbm5lY3QuaWFtLnNwaW5lMi5uY3JzLm5ocy51ay90b2tlbiIsCiAgImlhdCI6I
-   DE1MDQ2MTExMzUsCiAgImV4cCI6IDE1MDQ2MTExNjUsCiAgImp0aSI6ICJqYXNkaDg3amU5cDhyc2RqMjMzOTIzOD
-   k4MjMiCn0. ...
+  client_assertion=eyJ0eXAiOiJqd3QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjEwMCJ9.ewogICJpc3MiOiAiYWJjMTIzIiwKICAic3Vi
+   IjogImFiYzEyMyIsCiAgImF1ZCI6ICJodHRwczovL2Nvbm5lY3QuaWFtLnNwaW5lMi5uY3JzLm5ocy51ay90b2tlb
+   iIsCiAgImlhdCI6IDE1MDQ2MTExMzUsCiAgImV4cCI6IDE1MDQ2MTExNjUsCiAgImp0aSI6ICJqYXNkaDg3amU5cD
+   hyc2RqMjMzOTIzODk4MjMiCn0. ...
 ```
 The example shows that the request contains the client_id and redirect_uri from the original authentication request and the authorization code returned in response (for brevity the client assertion JWT value has been truncated).
 
@@ -226,7 +226,7 @@ The client assertion JWT is comprised of three Base64URL encoded elements separa
 The first element of the JWT is the token header. If we decode the value from the example above we get the string below:
 
 ```
-{"alg":"RS256","kid":"100"}
+{"typ":"jwt","alg":"RS256","kid":"100"}
 ```
 
 This specifies that the token has been signed with an RSA Signature utilising the SHA-256 hashing algorithm and the key identified by the string “100”. This kid should relate to a key contained in the third party's JWKS returned from the third party's JWKS endpoint (see [Third Party Keys](develop_nhs_impl#third-party-keys)).
