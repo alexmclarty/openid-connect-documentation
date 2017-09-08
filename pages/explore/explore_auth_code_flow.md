@@ -287,7 +287,7 @@ Decoding the second element gives us the JSON object containing the claims about
 }
 ```
 
-The third element is the signature over the JSON object. Details on how this signature is created and on how to validate it can be found in the [JSON Web Signature Specification](https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41).
+The third element is the signature over the JSON object. Details on how this signature is created and on how to validate it can be found in the [JSON Web Signature Specification](https://tools.ietf.org/html/rfc7515).
 
 #### ID Token Validation
 

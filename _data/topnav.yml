@@ -1,8 +1,6 @@
 topnav:
 - title: Topnav
   items:
-    - title: News
-      url: news.html
 
 topnav_dropdowns:
 - title: Topnav dropdowns
@@ -16,8 +14,8 @@ topnav_dropdowns:
         - title: The OAuth 2.0 Authorization Framework Bearer Token Usage
           external_url: https://tools.ietf.org/html/rfc6750
         - title: JSON Web Token
-          external_url: https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32        
+          external_url: https://tools.ietf.org/html/rfc7519        
         - title: JSON Web Signature
-          external_url: https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41        
+          external_url: https://tools.ietf.org/html/rfc7515        
         - title: JSON Web Encryption
-          external_url: http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption        
+          external_url: https://tools.ietf.org/html/rfc7516        

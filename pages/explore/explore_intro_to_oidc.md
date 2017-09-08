@@ -44,7 +44,7 @@ The following key terms are used in the rest of the page:
 
 * **ID Token**
 
-  A JSON Web Token ([JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication event and may contain claims about the End-User. An ID Token is requested using the openid scope.
+  A JSON Web Token ([JWT](https://tools.ietf.org/html/rfc7519) that contains claims about the authentication event and may contain claims about the End-User. An ID Token is requested using the openid scope.
 
 * **Access Token**
 
@@ -98,7 +98,7 @@ This section describes in more detail some of the data artefacts used in the flo
 
 ### ID Token
 
-The id token is a JSON Web Token ([JWT](https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32)) that contains claims about the authentication of an End-User and their identity. It may optionally contain other data about the End-User.
+The id token is a JSON Web Token ([JWT](https://tools.ietf.org/html/rfc7519)) that contains claims about the authentication of an End-User and their identity. It may optionally contain other data about the End-User.
 
 The claims are represented in a simple JSON object e.g.
 
@@ -114,7 +114,7 @@ The claims are represented in a simple JSON object e.g.
  "acr": "urn:mace:incommon:iap:silver"
 }
 ```
-The JSON object is signed using a JSON Web Signature [JWS](https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41) and optionally may be encrypted using JSON Web Encryption [JWE](http://tools.ietf.org/html/draft-ietf-jose-json-web-encryption). Signing the token allows the integrity and origin of the token to be validated by the Relying Party whilst encrypting the token provides confidentiality.
+The JSON object is signed using a JSON Web Signature [JWS](https://tools.ietf.org/html/rfc7515) and optionally may be encrypted using JSON Web Encryption [JWE](https://tools.ietf.org/html/rfc7516). Signing the token allows the integrity and origin of the token to be validated by the Relying Party whilst encrypting the token provides confidentiality.
 
 Finally the id token header, JSON claims and signature are encoded into a Base64URL strings separated by a . character e.g.
 

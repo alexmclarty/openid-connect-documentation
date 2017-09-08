@@ -6,8 +6,6 @@ permalink: develop_intro_to_nhs_impl.html
 summary: An introduction to the NHS Digital implementation of OpenID Connect.
 ---
 
-{% include warning.html content="Work in Progress." %}
-
 ## Introduction
 
 The previous sections in this site have provided an overview of OpenID Connect and described the Authorization Code Flow in more detail. The purpose of this page is to describe at a high level the current NHS Digital implementation of OpenID Connect.
@@ -18,7 +16,7 @@ This Alpha implementation is described further in the following sections:
 
 ## High Level Architecture
 
-The diagram below depicts at a a high level the components involved in the NHS Digital OPenID Connect implementation.
+The diagram below depicts at a a high level the components involved in the NHS Digital OpenID Connect implementation.
 
 ![NHS Digital Implementation](images/OIDCSpineImplementation.jpg)
 
@@ -44,7 +42,7 @@ The following components are involved in the solution:
 
 * **OpenID Connect Server**
 
-  The OpenID Connect Server is a new component that allows a third party to complete an OpenID Connect authentication by presenting token, JWKS and configuration endpoints.
+  The OpenID Connect Server is a new component that allows a third party to complete an OpenID Connect authorization code flow. It presents token, JWKS and configuration endpoints.
 
 * **Third Party Application**
 
@@ -58,13 +56,22 @@ This solution supports both online and offline authentication as described below
 
 ### Online Authentication
 
-Online authentication is provided using an Authorization Code Flow as depicted below and described in detail [here](explore_auth_code_flow).
+Online authentication is provided using a tailored Authorization Code Flow as depicted below:
 
-![Authorization Code Flow](images/OIDCOnlineFlow.jpg)
+![Online Authentication Flow](images/OIDCOnlineFlow.jpg)
 
-As shown above to initiate an authentication the third party application needs to make an OpenId Connect authentication request to the authorization endpoint. This would typically be done by causing the End-User's browser to perform an HTTP GET request. However in this instance both the third party application and Identity Agent Bridge are native applications so the communication is achieved using the Windows Custom URI Scheme. This requires that the Identity Agent Bridge registers a custom URI to receive authentication requests and that the third party application registers a custom URI to receive the response.
+1. The Relying Party sends a request to the OpenID Provider's authorization endpoint to authenticate the End-User. The request must include the Relying Party’s identity and the openid scope. 
 
-When the third party directs an authentication request at the authorize endpoint the Identity Agent Bridge will interact with the Identity Agent to determine whether the End-User has already authenticated. If they haven't this will start the authentication process by displaying a pop-up window requesting the user to enter their smartcard and enter their passcode.
+   Normally this would be done by causing the End-User's browser to perform an HTTP GET request. However in this instance both the Relying Party client and authorization endpoint are native applications so the communication is achieved using the Windows Custom URI Scheme.
+2. The OpenID Provider authenticates the user by requiring them to insert their smartcard and enter their passcode.
+3. Once the End-User has been authenticated the OpenID Provider will return an authorization code to the Relying Party’s server component. 
+   
+   Normally this would be done via a HTTP 302 redirect request. However in this instance both the Relying Party client and authorization endpoint are native applications so the response is returned using the Windows Custom URI Scheme. The Relying Party client will then communicate the authorization code to its server component.
+4. The Relying Party’s server component contacts the token endpoint and exchanges the authorization code for an id token identifying the End-User.
+
+#### Authentication and Authorization
+
+When the third party directs an authentication request at the OpenID Provider's authorize endpoint the Identity Agent Bridge will interact with the Identity Agent to determine whether the End-User has already authenticated. If they haven't this will start the authentication process by displaying a pop-up window requesting the user to enter their smartcard and enter their passcode.
 
 ![Spine Login](images/OIDCSpineLogin.jpg)
 
@@ -72,13 +79,49 @@ If the user correctly enters their passcode they will then be requested to selec
 
 ![Spine Role Selection](images/OIDCSpineRoleSelection.jpg)
 
-If the End-User was already authenticated or was newly authenticated the Identity Agent Bridge will interact with the OpenID Connect Server which in turn will interact with the Spine Authentication Server to generate an authorization code. This authorization code will be returned to the third party application by directing an OpenID Connect authentication response to the third party's custom URI. If they authentication fails then an OpenID Connect error response will be returned to the custom URI.
+If authentication was successful or the user was already authenticated the Identity Agent Bridge will interact with the OpenID Connect Server (which in turn will interact with the Spine Authentication Server) to generate an authorization code. This authorization code will be returned to the third party application by directing an OpenID Connect authentication response to the third party's custom URI. If the authentication fails then an OpenID Connect error response will be returned to the custom URI.
 
-Note that the user is not presented with a screen requesting authorization to release data to the third party. Consent is presumed on the basis of the terms and conditions they signed for use of a smartcard.
+{% include important.html content="Note that unlike the standard flow authorization code flow described [here](explore_auth_code_flow#authentication-and-authorization) the user is not presented with a screen requesting authorization to release the requested data to the third party. Consent is presumed on the basis of the terms and conditions signed for use of a smartcard." %}
 
 The third party native application should return the authorization code to its server component which can then use it to complete a standard Authorization Code Flow by retrieving id, access and refresh tokens from the token endpoint. Note that the current implementation does not support a userinfo endpoint.
 
 ### Offline Authentication
 
-{% include warning.html content="Work in Progress." %}
+The NHS Digital implementation of OpenID Connect has been specifically tailored to support the use case of a user working offline if they have first successfully authenticated whilst online. One such scenario where this use case might implemented is given below:
 
+1. At the beginning of the day user accesses N3 and starts up their community healthcare worker application.
+2. The application authenticates the user using the NHS Digital OpenID Connect online implementation (this requires the user to insert their smartcard and enter their passcode) and downloads the workers appointments for the day including the details of the patients they are to visit.
+3. The worker commences their visits during which time they will no or limited N3 access. During a visit the worker requests the application to view a patient's details.
+4. The application validates that the user is still authenticated using the NHS Digital OpenID Connect offline implementation (detailed further below) and allows the user to view the patient details and enter notes on the visit.
+5. At the end of the day the user again accesses N3 and requests the application to upload the notes taken during the day.
+6. The application re-authenticates the user using the NHS Digital OpenID Connect online implementation and uploads the notes.
+
+{% include warning.html content="The implementation details for the offline use case as described below may change in future versions." %}
+
+The offline authentication step described in step 4 is provided by a truncated Authorization Code Flow as depicted below:
+
+![Offline Authentication Flow](images/OIDCOfflineFlow.jpg)
+
+1. The Relying Party sends a request to the OpenID Provider's authorization endpoint to authenticate the End-User. The request must include the Relying Party’s identity, the openid scope and the id token returned when the user first authenticated. 
+
+   Normally this would be done by causing the End-User's browser to perform an HTTP GET request. However in this instance both the Relying Party client and authorization endpoint are native applications so the communication is achieved using the Windows Custom URI Scheme.
+2. The OpenID Provider validates that the user is still authenticated with the session as for the provided id token.
+3. Once the End-User has been authenticated the OpenID Provider will return an authorization code to the Relying Party. 
+   
+   Normally this would be done via a HTTP 302 redirect request. However in this instance both the Relying Party client and authorization endpoint are native applications so the response is returned using the Windows Custom URI Scheme. The Relying Party client can isnspect the authorization code to confirm that the user is still authenticated.
+
+#### Authentication and Authorization
+
+To support the offline use case the NHS Digital Identity Agent v2 is required. This provides two new modes of operation:
+
+* **Session Lock Persistence** 
+
+  If a user removes their Smartcard in order to temporarily leave their workstation, they are able to ‘lock’ their Spine session. On re-insertion of their Smartcard, the user is able to re-authenticate and continue their Spine session, with no loss of state.
+
+* **Mobility Mode** 
+
+  This mode enables users of mobile devices running a Windows OS to authenticate, remove their Smartcard from the device for secure storage (lanyard etc.), and continue working as normal.
+
+The behaviour of the Identity Agent when the third party attempts to validate whether the user is still validated will depend on which modes have been enabled and how they have configured. The validation maky occur seamlessly or may result in the Login screen illustrated above being re-displayed requiring the user to enter their passcode.
+
+For full details of the two modes and how they may be configured see the supporting documentation for the Identity Agent which may be found [here](http://nww.hscic.gov.uk/dir/downloads/).

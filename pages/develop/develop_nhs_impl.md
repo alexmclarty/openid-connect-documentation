@@ -121,6 +121,8 @@ nhsidentityagent://connect/authorize?
 
 The current Identity Agent Bridge implementation currently only supports the scope, response_type, client_id, redirct_uri and state parameters. The only scope supported is openid.
 
+### Authentication and Authorization
+
 Submitting an authentication request will initiate the user interaction described in the [High Level Flows](develop_intro_to_nhs_impl#high_level_flows) section of the introductory page.
 
 ### Authentication Successful Response
@@ -372,3 +374,11 @@ The NHS Digital implementation supports the follwoing HTTP response and error co
 |400|invalid_grant|
 |401|invalid_client|
 |500|internal_server_error|
+
+## UserInfo Request
+
+A userinfo endpoint is not supported by the NHS Digital implementation.
+
+## Using Refresh Tokens
+
+The use of refresh tokens is not supported by the NHS Digital implementation.
