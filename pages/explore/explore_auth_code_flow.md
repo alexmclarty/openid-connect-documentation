@@ -121,7 +121,7 @@ An example response is given below:
 
 The response will contain a code parameter and optionally a state parameter. 
 
-The code parameter holds the authorization code which is a string value. Some OpenID Provider implementations may encode state about the id token to be returned in the authorization code value, whilst others may use the authorization code value as an index into a data sore holding this state. In either case the content of authorization code is opaque to the Relying Party.
+The code parameter holds the authorization code which is a string value. Some OpenID Provider implementations may encode state about the id token to be returned in the authorization code value, whilst others may use the authorization code value as an index into a data store holding this state. In either case the content of authorization code is opaque to the Relying Party.
 
 The state parameter will be returned if a value was provided by the Relying Party in the authorize request. The Relying Party should validate that the value returned matches that supplied. The state value can additionally be used to mitigate against XSRF attacks by cryptographically binding the value of this parameter with a browser cookie (for more details see the [OAuth 2.0 Authorization Framework Specification](https://tools.ietf.org/html/rfc6749#section-10.12)).
 
